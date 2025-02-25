@@ -13,6 +13,7 @@ export const issueBaseSchema = {
   status: z.enum(["NEW", "ASSIGNED", "IN_PROGRESS", "PENDING", "NEEDS_REVIEW", "FIXED", "CLOSED", "WONT_FIX"]),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
   assignedToId: z.string().uuid().optional().nullable(),
+  dueDate: z.date().optional().nullable(),
 };
 
 // Schema for issue creation - all fields are required except those marked optional

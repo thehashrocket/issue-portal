@@ -4,7 +4,8 @@ import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { Prisma } from "@prisma/client";
 import { issueUpdateSchema } from "@/lib/validation";
-import { checkAuthorization } from "@/lib/auth-utils";
+import { checkAuthorization, isAdmin, isAccountManager, isDeveloper } from "@/lib/auth-utils";
+import { isNotPastDate } from "@/lib/date-utils";
 
 // GET /api/issues/[id] - Get a specific issue
 export async function GET(
@@ -96,6 +97,19 @@ export async function PUT(
     });
     
     if (authError) return authError;
+    
+    // Handle due date restrictions
+    if (data.dueDate !== undefined) {
+      // Only admins and account managers can update due dates
+      if (isDeveloper(session)) {
+        return ApiErrors.forbidden("Developers cannot modify due dates");
+      }
+      
+      // Validate that the due date is not in the past
+      if (data.dueDate && !isNotPastDate(data.dueDate)) {
+        return ApiErrors.badRequest("Due date cannot be in the past");
+      }
+    }
     
     // Use Prisma's update with proper error handling to prevent race conditions
     try {

@@ -3,7 +3,8 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { issueCreateSchema } from "@/lib/validation";
-import { isAdmin, checkAuthorization } from "@/lib/auth-utils";
+import { isAdmin, checkAuthorization, isAccountManager } from "@/lib/auth-utils";
+import { getDefaultDueDate } from "@/lib/date-utils";
 
 // GET /api/issues - Get all issues
 export async function GET(request: NextRequest) {
@@ -123,15 +124,19 @@ export async function POST(request: NextRequest) {
     
     const data = validationResult.data;
     
+    // Set default due date if not provided (10 business days from now)
+    const dueDate = data.dueDate || getDefaultDueDate();
+    
     // Create the issue
     const issue = await prisma.issue.create({
       data: {
         title: data.title,
         description: data.description,
-        status: data.status || "OPEN",
+        status: data.status || "NEW",
         priority: data.priority || "MEDIUM",
         assignedToId: data.assignedToId,
         reportedById: session?.user?.id, // Current user is the reporter
+        dueDate: dueDate,
       },
       include: {
         assignedTo: {
