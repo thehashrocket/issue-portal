@@ -79,7 +79,7 @@ model Issue {
   id          String        @id @default(uuid())
   title       String
   description String?
-  status      IssueStatus   @default(OPEN)
+  status      IssueStatus   @default(NEW)
   priority    IssuePriority @default(MEDIUM)
   assignedTo  User?         @relation("AssignedIssues", fields: [assignedToId], references: [id])
   assignedToId String?
@@ -127,10 +127,14 @@ enum ClientStatus {
 }
 
 enum IssueStatus {
-  OPEN
+  NEW
+  ASSIGNED
   IN_PROGRESS
-  RESOLVED
+  PENDING
+  NEEDS_REVIEW
+  FIXED
   CLOSED
+  WONT_FIX
 }
 
 enum IssuePriority {

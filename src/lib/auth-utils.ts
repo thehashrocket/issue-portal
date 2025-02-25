@@ -11,7 +11,7 @@ export type ResourceType = "issue" | "client" | "user";
 /**
  * Actions that can be performed on resources
  */
-export type Action = "view" | "create" | "update" | "delete" | "list";
+export type Action = "view" | "create" | "update" | "delete" | "list" | "updateStatus";
 
 /**
  * Extended Session type with properly typed user role
@@ -96,6 +96,10 @@ export const authorizationRules = {
     update: (session: Session | null, data: IssueUpdateData): boolean => {
       return isAdmin(session) || isDeveloper(session) || isOwner(session, data.reportedById) || isAssigned(session, data.assignedToId);
     },
+    updateStatus: (session: Session | null, data: IssueUpdateData): boolean => {
+      // Only admins, developers, and account managers can update status
+      return isAdmin(session) || isDeveloper(session) || isAccountManager(session);
+    },
     delete: (session: Session | null, data: IssueDeleteData): boolean => {
       // Only admins, developers, and the reporter can delete an issue
       return isAdmin(session) || isDeveloper(session) || isOwner(session, data.reportedById);
@@ -164,7 +168,8 @@ export function isAuthorized(
   }
 
   // Get the authorization rule for this resource and action
-  const rule = authorizationRules[resourceType][action];
+  // Use type assertion to avoid TypeScript error
+  const rule = (authorizationRules[resourceType] as Record<Action, Function>)[action];
   
   // If no rule exists, deny by default
   if (!rule) {

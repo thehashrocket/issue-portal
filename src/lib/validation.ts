@@ -10,7 +10,7 @@ import { z } from "zod";
 export const issueBaseSchema = {
   title: z.string().min(1, "Title is required"),
   description: z.string().optional().nullable(),
-  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]),
+  status: z.enum(["NEW", "ASSIGNED", "IN_PROGRESS", "PENDING", "NEEDS_REVIEW", "FIXED", "CLOSED", "WONT_FIX"]),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
   assignedToId: z.string().uuid().optional().nullable(),
 };

@@ -95,6 +95,12 @@ export const ApiErrors = {
     createErrorResponse(message, 400, details, code),
   
   /**
+   * 400 Bad Request - Generic bad request
+   */
+  badRequest: (message: string = "Bad request", details?: unknown, code?: string) => 
+    createErrorResponse(message, 400, details, code),
+  
+  /**
    * 500 Internal Server Error - Unexpected error
    */
   serverError: (message: string = "An unexpected error occurred", code?: string) => 
