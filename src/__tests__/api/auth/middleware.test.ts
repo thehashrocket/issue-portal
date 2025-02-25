@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { middleware } from "@/middleware";
 import { auth } from "@/lib/auth";
-import { ApiErrors } from "@/lib/api-utils";
 import { Role } from "@prisma/client";
 
 // Mock the next/server module
@@ -34,7 +33,7 @@ jest.mock("@/lib/auth", () => ({
   auth: jest.fn(),
 }));
 
-// Mock the ApiErrors
+// Mock the ApiErrors - used indirectly by middleware
 jest.mock("@/lib/api-utils", () => ({
   ApiErrors: {
     unauthorized: jest.fn().mockReturnValue({ status: 401 }),

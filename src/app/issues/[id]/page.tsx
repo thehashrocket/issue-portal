@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Comments from "@/components/comments/Comments";
 
@@ -32,7 +31,6 @@ type Issue = {
 };
 
 export default function IssueDetailPage({ params }: { params: { id: string } }) {
-  const router = useRouter();
   const { id } = params;
   
   const [issue, setIssue] = useState<Issue | null>(null);

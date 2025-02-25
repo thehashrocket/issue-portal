@@ -1,4 +1,3 @@
-import { createMocks } from 'node-mocks-http';
 import { POST } from '@/app/api/files/upload/route';
 import { GET } from '@/app/api/issues/[id]/files/route';
 import { DELETE } from '@/app/api/files/[id]/route';
@@ -55,8 +54,8 @@ global.FormData = jest.fn().mockImplementation(() => ({
   get: jest.fn(),
 }));
 
-// Import NextRequest and NextResponse after mocking
-const { NextRequest, NextResponse } = require('next/server');
+// Import NextRequest and NextResponse properly
+import { NextRequest, NextResponse } from 'next/server';
 
 describe('File API', () => {
   // Mock user session
@@ -136,7 +135,7 @@ describe('File API', () => {
 
     it('should upload a file successfully', async () => {
       // Skip the actual implementation details and just test the API behavior
-      const formData = new FormData();
+      // Create a FormData instance but use it directly with the request
       const req = new NextRequest('http://localhost/api/files/upload', {
         method: 'POST',
       });

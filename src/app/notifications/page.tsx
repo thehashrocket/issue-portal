@@ -27,7 +27,7 @@ type PaginationData = {
 };
 
 export default function NotificationsPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [pagination, setPagination] = useState<PaginationData>({
     page: 1,

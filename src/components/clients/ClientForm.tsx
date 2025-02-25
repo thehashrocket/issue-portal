@@ -176,7 +176,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
         throw new Error(errorData.message || 'Failed to save client');
       }
       
-      const data = await response.json();
+      await response.json();
       
       setSuccess(isEditMode ? 'Client updated successfully' : 'Client created successfully');
       

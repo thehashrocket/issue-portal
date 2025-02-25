@@ -1,5 +1,3 @@
-import { NextRequest } from 'next/server';
-
 /**
  * Process a file upload from a FormData request
  * @param formData The FormData object from the request

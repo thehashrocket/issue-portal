@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   // Authentication and authorization are now handled by middleware
   // We can assume the user is authenticated and has admin role
   

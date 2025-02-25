@@ -11,7 +11,8 @@ jest.mock('next/server', () => ({
 
 import { testApiHandler } from 'next-test-api-route-handler';
 import * as appHandler from '@/app/api/clients/route';
-import * as idHandler from '@/app/api/clients/[id]/route';
+// idHandler is imported but not used in this file
+// import * as idHandler from '@/app/api/clients/[id]/route';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 

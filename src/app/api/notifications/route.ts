@@ -2,7 +2,8 @@ import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
-import { checkAuthorization } from "@/lib/auth-utils";
+// checkAuthorization is defined but never used
+// import { checkAuthorization } from "@/lib/auth-utils";
 
 // GET /api/notifications - Get all notifications for the current user
 export async function GET(request: NextRequest) {

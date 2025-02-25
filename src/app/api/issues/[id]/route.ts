@@ -1,25 +1,26 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { Prisma } from "@prisma/client";
 import { issueUpdateSchema } from "@/lib/validation";
-import { checkAuthorization, isAdmin, isAccountManager, isDeveloper } from "@/lib/auth-utils";
+import { checkAuthorization, isDeveloper } from "@/lib/auth-utils";
 import { isNotPastDate } from "@/lib/date-utils";
 
 // GET /api/issues/[id] - Get a specific issue
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Authentication is now handled by middleware
   // We can assume session and session.user exist
   const session = await auth();
   
   try {
+    const { id } = await params;
     const issue = await prisma.issue.findUnique({
       where: {
-        id: params.id,
+        id,
       },
       include: {
         assignedTo: {
@@ -60,14 +61,15 @@ export async function GET(
 
 // PUT /api/issues/[id] - Update a specific issue
 export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Authentication is now handled by middleware
   // We can assume session and session.user exist
   const session = await auth();
   
   try {
+    const { id } = await params;
     const body = await request.json();
     
     // Validate request body
@@ -82,7 +84,7 @@ export async function PUT(
     // First check if the issue exists
     const existingIssue = await prisma.issue.findUnique({
       where: {
-        id: params.id,
+        id,
       },
     });
     
@@ -115,7 +117,7 @@ export async function PUT(
     try {
       const updatedIssue = await prisma.issue.update({
         where: {
-          id: params.id,
+          id,
         },
         data,
         include: {
@@ -160,18 +162,19 @@ export async function PUT(
 
 // DELETE /api/issues/[id] - Delete a specific issue
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Authentication is now handled by middleware
   // We can assume session and session.user exist
   const session = await auth();
   
   try {
+    const { id } = await params;
     // First check if the issue exists
     const existingIssue = await prisma.issue.findUnique({
       where: {
-        id: params.id,
+        id,
       },
     });
     
@@ -190,11 +193,11 @@ export async function DELETE(
     try {
       await prisma.issue.delete({
         where: {
-          id: params.id,
+          id,
         },
       });
       
-      return createSuccessResponse({ id: params.id }, 200, "Issue deleted successfully");
+      return createSuccessResponse({ id }, 200, "Issue deleted successfully");
     } catch (deleteError) {
       // Handle the case where the issue was deleted between our check and delete
       if (deleteError instanceof Prisma.PrismaClientKnownRequestError && deleteError.code === 'P2025') {

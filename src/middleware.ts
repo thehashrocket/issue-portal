@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { ApiErrors } from "@/lib/api-utils";
-import { isAdmin, isAccountManager, checkAuthorization, checkRole, isDeveloper } from "@/lib/auth-utils";
+import { checkRole } from "@/lib/auth-utils";
 
 export async function middleware(request: NextRequest) {
   const session = await auth();

@@ -4,7 +4,6 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { IssueStatus } from "@/lib/issue-status-utils";
 import { isValidStatusTransition } from "@/lib/issue-status-utils";
-import { Session } from "next-auth";
 
 // Mock dependencies
 jest.mock("@/lib/auth", () => ({
@@ -30,15 +29,16 @@ function createMockRequest(body: Record<string, unknown>): NextRequest {
   } as unknown as NextRequest;
 }
 
-// Define a partial session type for testing
-type PartialSession = Partial<Session> & {
-  user: {
-    id: string;
-    role: string;
-    name?: string;
-    email?: string;
-  }
-};
+// PartialSession type is defined but not used in this file
+// It might be needed for future tests
+// type PartialSession = Partial<Session> & {
+//   user: {
+//     id: string;
+//     role: string;
+//     name?: string;
+//     email?: string;
+//   }
+// };
 
 describe("Issue Status API", () => {
   beforeEach(() => {

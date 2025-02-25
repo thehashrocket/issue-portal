@@ -4,13 +4,13 @@ import { useRouter } from 'next/navigation';
 import ClientForm from '@/components/clients/ClientForm';
 import { act } from 'react-dom/test-utils';
 
-// Define ClientStatus enum to match the one in the component
-enum ClientStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  LEAD = 'LEAD',
-  FORMER = 'FORMER'
-}
+// ClientStatus is defined but never used in this file
+// enum ClientStatus {
+//   ACTIVE = 'ACTIVE',
+//   INACTIVE = 'INACTIVE',
+//   LEAD = 'LEAD',
+//   FORMER = 'FORMER'
+// }
 
 // Mock next-auth
 jest.mock('next-auth/react', () => ({

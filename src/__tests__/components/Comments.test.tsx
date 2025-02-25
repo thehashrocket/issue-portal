@@ -6,7 +6,7 @@ import "@testing-library/jest-dom";
 
 // Mock the child components
 jest.mock("@/components/comments/CommentForm", () => {
-  return jest.fn(({ issueId, onCommentAdded }) => (
+  return jest.fn(({ onCommentAdded }) => (
     <div data-testid="mock-comment-form">
       <span>Mock Comment Form</span>
       <button onClick={onCommentAdded}>Trigger onCommentAdded</button>
@@ -15,7 +15,7 @@ jest.mock("@/components/comments/CommentForm", () => {
 });
 
 jest.mock("@/components/comments/CommentList", () => {
-  return jest.fn(({ issueId, onCommentDeleted }) => (
+  return jest.fn(({ onCommentDeleted }) => (
     <div data-testid="mock-comment-list">
       <span>Mock Comment List</span>
       <button onClick={onCommentDeleted}>Trigger onCommentDeleted</button>

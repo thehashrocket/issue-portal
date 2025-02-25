@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { issueCreateSchema } from "@/lib/validation";
-import { isAdmin, checkAuthorization, isAccountManager } from "@/lib/auth-utils";
+import { isAdmin, checkAuthorization } from "@/lib/auth-utils";
 import { getDefaultDueDate } from "@/lib/date-utils";
 
 // GET /api/issues - Get all issues

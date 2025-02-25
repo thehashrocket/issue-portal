@@ -1,4 +1,3 @@
-import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { clientUpdateSchema } from "@/lib/validation";
@@ -7,8 +6,8 @@ import { checkAuthorization } from "@/lib/auth-utils";
 
 // GET /api/clients/[id] - Get a specific client
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
   
@@ -17,7 +16,7 @@ export async function GET(
   if (authError) return authError;
   
   try {
-    const { id } = params;
+    const { id } = await params;
     const prismaAny = prisma as any;
     
     // Find the client
@@ -55,8 +54,8 @@ export async function GET(
 
 // PUT /api/clients/[id] - Update a specific client
 export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
   
@@ -65,7 +64,7 @@ export async function PUT(
   if (authError) return authError;
   
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const prismaAny = prisma as any;
     
@@ -131,8 +130,8 @@ export async function PUT(
 
 // DELETE /api/clients/[id] - Soft delete a specific client
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
   
@@ -141,7 +140,7 @@ export async function DELETE(
   if (authError) return authError;
   
   try {
-    const { id } = params;
+    const { id } = await params;
     const prismaAny = prisma as any;
     
     // Check if client exists and user has permission
@@ -162,14 +161,14 @@ export async function DELETE(
     }
     
     // Soft delete the client by setting status to INACTIVE
-    const updatedClient = await prismaAny.client.update({
+    await prismaAny.client.update({
       where: { id },
       data: {
         status: "INACTIVE",
       },
     });
-    
-    return createSuccessResponse({ id }, 200, "Client soft deleted successfully");
+
+    return createSuccessResponse({ message: "Client deleted successfully" });
   } catch (error) {
     console.error("Error soft deleting client:", error);
     return ApiErrors.serverError("Failed to soft delete client");
@@ -178,8 +177,8 @@ export async function DELETE(
 
 // PATCH /api/clients/[id] - Partially update a specific client
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
   
@@ -188,7 +187,7 @@ export async function PATCH(
   if (authError) return authError;
   
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const prismaAny = prisma as any;
     

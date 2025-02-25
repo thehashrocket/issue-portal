@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { isAdmin } from "@/lib/auth-utils";
+import Image from 'next/image';
 
 // Types
 type Comment = {
@@ -120,10 +121,12 @@ export default function CommentList({ issueId, onCommentDeleted }: CommentListPr
               <div className="flex justify-between items-start">
                 <div className="flex items-center space-x-2">
                   {comment.createdBy.image ? (
-                    <img 
+                    <Image 
                       src={comment.createdBy.image} 
                       alt={comment.createdBy.name || comment.createdBy.email || "User"} 
-                      className="w-8 h-8 rounded-full"
+                      width={32}
+                      height={32}
+                      className="rounded-full"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">

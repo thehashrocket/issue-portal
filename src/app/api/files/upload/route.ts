@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     // Validate metadata
     try {
       uploadSchema.parse({ issueId });
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid request data' },
         { status: 400 }
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 /**
  * GET handler for checking upload status
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // Check authentication
     const session = await auth();

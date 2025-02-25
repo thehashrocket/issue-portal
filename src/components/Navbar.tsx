@@ -6,7 +6,7 @@ import NotificationBell from './NotificationBell';
 import { useRoleCheck } from '@/lib/hooks/useRoleCheck';
 
 export default function Navbar() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const { isAdmin, isAccountManager, isDeveloper, isAuthenticated, isLoading } = useRoleCheck();
   
   return (

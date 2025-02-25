@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
@@ -41,7 +40,6 @@ interface ClientDetailProps {
 
 export default function ClientDetail({ clientId }: ClientDetailProps) {
   const { data: session } = useSession();
-  const router = useRouter();
   
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);

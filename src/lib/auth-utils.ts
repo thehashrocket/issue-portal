@@ -14,19 +14,6 @@ export type ResourceType = "issue" | "client" | "user" | "comment";
 export type Action = "view" | "create" | "update" | "delete" | "list" | "updateStatus";
 
 /**
- * Extended Session type with properly typed user role
- */
-interface ExtendedSession extends Session {
-  user: {
-    id: string;
-    role: Role;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  };
-}
-
-/**
  * Check if a user has admin role
  */
 export function isAdmin(session: Session | null): boolean {
@@ -94,10 +81,10 @@ export const authorizationRules = {
       // Any authenticated user can create an issue
       return !!session?.user;
     },
-    update: (session: Session | null, data: IssueUpdateData): boolean => {
-      return isAdmin(session) || isDeveloper(session) || isOwner(session, data.reportedById) || isAssigned(session, data.assignedToId);
+    update: (session: Session | null, { reportedById, assignedToId }: IssueUpdateData): boolean => {
+      return isAdmin(session) || isDeveloper(session) || isOwner(session, reportedById) || isAssigned(session, assignedToId);
     },
-    updateStatus: (session: Session | null, data: IssueUpdateData): boolean => {
+    updateStatus: (session: Session | null): boolean => {
       // Only admins, developers, and account managers can update status
       return isAdmin(session) || isDeveloper(session) || isAccountManager(session);
     },
@@ -184,7 +171,8 @@ export function isAuthorized(
 
   // Get the authorization rule for this resource and action
   // Use type assertion to avoid TypeScript error
-  const rule = (authorizationRules[resourceType] as Record<Action, Function>)[action];
+  type AuthRule = (session: Session | null, resourceData?: Record<string, any>) => boolean;
+  const rule = (authorizationRules[resourceType] as Record<Action, AuthRule>)[action];
   
   // If no rule exists, deny by default
   if (!rule) {

@@ -2,7 +2,9 @@ import { NextRequest } from "next/server";
 import { PATCH } from "@/app/api/issues/[id]/status/route";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { IssueStatus } from "@/lib/issue-status-utils";
+// IssueStatus is imported but not directly used in this file
+// It might be referenced indirectly through the tests
+// import { IssueStatus } from "@/lib/issue-status-utils";
 import { Prisma } from "@prisma/client";
 
 // Mock auth to simulate different user roles

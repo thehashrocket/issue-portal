@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+// z is imported but not used directly in this file
+// import { z } from "zod";
 import Link from "next/link";
 
 // Import the issue schema from validation.ts
@@ -55,7 +56,6 @@ export default function NewIssuePage() {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<IssueCreateInput>({
     resolver: zodResolver(issueCreateSchema),
     defaultValues: {

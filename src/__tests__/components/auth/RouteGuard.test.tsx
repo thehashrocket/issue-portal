@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import RouteGuard, { routeAccessConfig } from '@/components/auth/RouteGuard';
+import RouteGuard from '@/components/auth/RouteGuard';
 import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Role } from '@prisma/client';

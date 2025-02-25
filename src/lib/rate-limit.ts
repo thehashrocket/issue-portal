@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { rateLimit } from 'express-rate-limit';
 import { ApiErrors } from './api-utils';
 
 // In-memory store for rate limiting

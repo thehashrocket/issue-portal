@@ -60,7 +60,7 @@ export function WithRoleAccess({
     ) : (
       // This will be shown briefly before the redirect happens
       <div className="p-4 text-center">
-        You don't have permission to access this page.
+        You do not have permission to access this page.
       </div>
     );
   }
