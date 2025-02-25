@@ -19,6 +19,8 @@ model User {
   accounts      Account[]
   clients       Client[]
   sessions      Session[]
+  assignedIssues Issue[]   @relation("AssignedIssues")
+  reportedIssues Issue[]   @relation("ReportedIssues")
 }
 
 model Account {
@@ -72,6 +74,23 @@ model Client {
   @@index([managerId])
 }
 
+model Issue {
+  id          String        @id @default(uuid())
+  title       String
+  description String?
+  status      IssueStatus   @default(OPEN)
+  priority    IssuePriority @default(MEDIUM)
+  assignedTo  User?         @relation("AssignedIssues", fields: [assignedToId], references: [id])
+  assignedToId String?
+  reportedBy  User          @relation("ReportedIssues", fields: [reportedById], references: [id])
+  reportedById String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([assignedToId])
+  @@index([reportedById])
+}
+
 enum Role {
   USER
   ADMIN
@@ -83,4 +102,18 @@ enum ClientStatus {
   INACTIVE
   LEAD
   FORMER
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
