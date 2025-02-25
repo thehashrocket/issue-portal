@@ -4,9 +4,10 @@ import { PrismaClient } from '@prisma/client';
 // exhausting your database connection limit.
 // Learn more: https://pris.ly/d/help/next-js-best-practices
 
-// Define a custom type that includes the Issue model
+// Define a custom type that includes the Issue and File models
 type PrismaClientWithIssue = PrismaClient & {
   issue: any;
+  file: any;
 };
 
 // Add issue model to the global type
