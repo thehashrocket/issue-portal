@@ -22,6 +22,11 @@ export async function GET(request: NextRequest) {
     const assignedToId = searchParams.get("assignedToId");
     const reportedById = searchParams.get("reportedById");
     
+    // Pagination parameters
+    const page = Number(searchParams.get("page") || "1");
+    const limit = Number(searchParams.get("limit") || "10");
+    const skip = (page - 1) * limit;
+    
     // Build filter conditions
     const where: Record<string, unknown> = {};
     
@@ -49,6 +54,10 @@ export async function GET(request: NextRequest) {
       ];
     }
     
+    // Get total count for pagination
+    const total = await prisma.issue.count({ where });
+    
+    // Get paginated issues
     const issues = await prisma.issue.findMany({
       where,
       include: {
@@ -70,9 +79,22 @@ export async function GET(request: NextRequest) {
       orderBy: {
         updatedAt: "desc",
       },
+      skip,
+      take: limit,
     });
     
-    return createSuccessResponse(issues);
+    // Add pagination metadata to the response
+    const issuesWithMeta = {
+      issues,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      }
+    };
+    
+    return createSuccessResponse(issuesWithMeta, 200, "Issues retrieved successfully");
   } catch (error) {
     console.error("Error fetching issues:", error);
     return ApiErrors.serverError("Failed to fetch issues");
