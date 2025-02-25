@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { z } from "zod";
-
-// Schema for client update validation
-const clientUpdateSchema = z.object({
-  name: z.string().min(1, "Name is required").optional(),
-  email: z.string().email().optional().nullable(),
-  phone: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  website: z.string().url().optional().nullable(),
-  description: z.string().optional().nullable(),
-  status: z.enum(["ACTIVE", "INACTIVE", "LEAD", "FORMER"]).optional(),
-  managerId: z.string().uuid().optional().nullable(),
-});
+import { clientUpdateSchema } from "@/lib/validation";
+import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
+import { checkAuthorization } from "@/lib/auth-utils";
 
 // GET /api/clients/[id] - Get a specific client
 export async function GET(
@@ -22,9 +12,9 @@ export async function GET(
 ) {
   const session = await auth();
   
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // Check authorization for viewing clients
+  const authError = checkAuthorization(session, "client", "view");
+  if (authError) return authError;
   
   try {
     const { id } = params;
@@ -45,40 +35,34 @@ export async function GET(
     });
     
     if (!client) {
-      return NextResponse.json({ error: "Client not found" }, { status: 404 });
+      return ApiErrors.notFound("Client");
     }
     
     // Check if user has permission to view this client
     if (
-      session.user.role !== "ADMIN" &&
-      client.managerId !== session.user.id
+      session?.user?.role !== "ADMIN" &&
+      client.managerId !== session?.user?.id
     ) {
-      return NextResponse.json(
-        { error: "You don't have permission to view this client" },
-        { status: 403 }
-      );
+      return ApiErrors.forbidden("You don't have permission to view this client");
     }
     
-    return NextResponse.json(client);
+    return createSuccessResponse(client);
   } catch (error) {
     console.error("Error fetching client:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch client" },
-      { status: 500 }
-    );
+    return ApiErrors.serverError("Failed to fetch client");
   }
 }
 
-// PUT /api/clients/[id] - Update a client
+// PUT /api/clients/[id] - Update a specific client
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const session = await auth();
   
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // Check authorization for updating clients
+  const authError = checkAuthorization(session, "client", "update");
+  if (authError) return authError;
   
   try {
     const { id } = params;
@@ -89,10 +73,7 @@ export async function PUT(
     const validationResult = clientUpdateSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: "Validation failed", details: validationResult.error.format() },
-        { status: 400 }
-      );
+      return ApiErrors.validationFailed(validationResult.error.format());
     }
     
     // Check if client exists and user has permission
@@ -101,18 +82,15 @@ export async function PUT(
     });
     
     if (!existingClient) {
-      return NextResponse.json({ error: "Client not found" }, { status: 404 });
+      return ApiErrors.notFound("Client");
     }
     
     // Check if user has permission to update this client
     if (
-      session.user.role !== "ADMIN" &&
-      existingClient.managerId !== session.user.id
+      session?.user?.role !== "ADMIN" &&
+      existingClient.managerId !== session?.user?.id
     ) {
-      return NextResponse.json(
-        { error: "You don't have permission to update this client" },
-        { status: 403 }
-      );
+      return ApiErrors.forbidden("You don't have permission to update this client");
     }
     
     const data = validationResult.data;
@@ -141,26 +119,23 @@ export async function PUT(
       },
     });
     
-    return NextResponse.json(updatedClient);
+    return createSuccessResponse(updatedClient, 200, "Client updated successfully");
   } catch (error) {
     console.error("Error updating client:", error);
-    return NextResponse.json(
-      { error: "Failed to update client" },
-      { status: 500 }
-    );
+    return ApiErrors.serverError("Failed to update client");
   }
 }
 
-// DELETE /api/clients/[id] - Delete a client
+// DELETE /api/clients/[id] - Delete a specific client
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const session = await auth();
   
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // Check authorization for deleting clients
+  const authError = checkAuthorization(session, "client", "delete");
+  if (authError) return authError;
   
   try {
     const { id } = params;
@@ -172,16 +147,13 @@ export async function DELETE(
     });
     
     if (!existingClient) {
-      return NextResponse.json({ error: "Client not found" }, { status: 404 });
+      return ApiErrors.notFound("Client");
     }
     
     // Only ADMIN can delete clients
     // ACCOUNT_MANAGER can only mark clients as INACTIVE
-    if (session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { error: "Only administrators can delete clients" },
-        { status: 403 }
-      );
+    if (session?.user?.role !== "ADMIN") {
+      return ApiErrors.forbidden("Only administrators can delete clients");
     }
     
     // Delete the client
@@ -189,15 +161,9 @@ export async function DELETE(
       where: { id },
     });
     
-    return NextResponse.json(
-      { message: "Client deleted successfully" },
-      { status: 200 }
-    );
+    return createSuccessResponse({ id }, 200, "Client deleted successfully");
   } catch (error) {
     console.error("Error deleting client:", error);
-    return NextResponse.json(
-      { error: "Failed to delete client" },
-      { status: 500 }
-    );
+    return ApiErrors.serverError("Failed to delete client");
   }
 } 

@@ -1,27 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { z } from "zod";
-
-// Schema for client creation/update validation
-const clientSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email().optional().nullable(),
-  phone: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  website: z.string().url().optional().nullable(),
-  description: z.string().optional().nullable(),
-  status: z.enum(["ACTIVE", "INACTIVE", "LEAD", "FORMER"]).optional(),
-  managerId: z.string().uuid().optional().nullable(),
-});
+import { clientCreateSchema } from "@/lib/validation";
+import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
+import { checkAuthorization } from "@/lib/auth-utils";
 
 // GET /api/clients - Get all clients
 export async function GET(request: NextRequest) {
   const session = await auth();
   
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // Check authorization for listing clients
+  const authError = checkAuthorization(session, "client", "list");
+  if (authError) return authError;
   
   try {
     let clients;
@@ -29,7 +19,7 @@ export async function GET(request: NextRequest) {
     
     // If user is ADMIN, return all clients
     // If user is ACCOUNT_MANAGER, return only their clients
-    if (session.user.role === "ADMIN") {
+    if (session?.user?.role === "ADMIN") {
       clients = await prismaAny.client.findMany({
         include: {
           manager: {
@@ -48,7 +38,7 @@ export async function GET(request: NextRequest) {
       // For ACCOUNT_MANAGER, only return clients they manage
       clients = await prismaAny.client.findMany({
         where: {
-          managerId: session.user.id,
+          managerId: session?.user?.id,
         },
         include: {
           manager: {
@@ -65,13 +55,10 @@ export async function GET(request: NextRequest) {
       });
     }
     
-    return NextResponse.json(clients);
+    return createSuccessResponse(clients);
   } catch (error) {
     console.error("Error fetching clients:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch clients" },
-      { status: 500 }
-    );
+    return ApiErrors.serverError("Failed to fetch clients");
   }
 }
 
@@ -79,21 +66,18 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await auth();
   
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // Check authorization for creating clients
+  const authError = checkAuthorization(session, "client", "create");
+  if (authError) return authError;
   
   try {
     const body = await request.json();
     
     // Validate request body
-    const validationResult = clientSchema.safeParse(body);
+    const validationResult = clientCreateSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: "Validation failed", details: validationResult.error.format() },
-        { status: 400 }
-      );
+      return ApiErrors.validationFailed(validationResult.error.format());
     }
     
     const data = validationResult.data;
@@ -109,16 +93,13 @@ export async function POST(request: NextRequest) {
         website: data.website,
         description: data.description,
         status: data.status || "ACTIVE",
-        managerId: data.managerId || session.user.id, // Default to current user if not specified
+        managerId: data.managerId || session?.user?.id, // Default to current user if not specified
       },
     });
     
-    return NextResponse.json(client, { status: 201 });
+    return createSuccessResponse(client, 201, "Client created successfully");
   } catch (error) {
     console.error("Error creating client:", error);
-    return NextResponse.json(
-      { error: "Failed to create client" },
-      { status: 500 }
-    );
+    return ApiErrors.serverError("Failed to create client");
   }
 } 

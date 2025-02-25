@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   // Authentication and authorization are now handled by middleware
@@ -18,12 +19,9 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ users }, { status: 200 });
+    return createSuccessResponse(users, 200, "Users retrieved successfully");
   } catch (error) {
     console.error("Error fetching users:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return ApiErrors.serverError("Failed to fetch users");
   }
 } 

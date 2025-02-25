@@ -1,24 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { z } from "zod";
-
-// Schema for issue creation/update validation
-const issueSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]).optional(),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(),
-  assignedToId: z.string().uuid().optional().nullable(),
-});
+import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
+import { issueCreateSchema } from "@/lib/validation";
+import { isAdmin, checkAuthorization } from "@/lib/auth-utils";
 
 // GET /api/issues - Get all issues
 export async function GET(request: NextRequest) {
+  // Authentication is now handled by middleware
+  // We can assume session and session.user exist
   const session = await auth();
   
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // Check authorization for listing issues
+  const authError = checkAuthorization(session, "issue", "list");
+  if (authError) return authError;
   
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -28,7 +23,7 @@ export async function GET(request: NextRequest) {
     const reportedById = searchParams.get("reportedById");
     
     // Build filter conditions
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     
     if (status) {
       where.status = status;
@@ -47,15 +42,14 @@ export async function GET(request: NextRequest) {
     }
     
     // If user is not an admin, only show issues they reported or are assigned to
-    if (session.user.role !== "ADMIN") {
+    if (!isAdmin(session)) {
       where.OR = [
-        { reportedById: session.user.id },
-        { assignedToId: session.user.id }
+        { reportedById: session?.user?.id },
+        { assignedToId: session?.user?.id }
       ];
     }
     
-    const prismaAny = prisma as any;
-    const issues = await prismaAny.issue.findMany({
+    const issues = await prisma.issue.findMany({
       where,
       include: {
         assignedTo: {
@@ -78,49 +72,44 @@ export async function GET(request: NextRequest) {
       },
     });
     
-    return NextResponse.json(issues);
+    return createSuccessResponse(issues);
   } catch (error) {
     console.error("Error fetching issues:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch issues" },
-      { status: 500 }
-    );
+    return ApiErrors.serverError("Failed to fetch issues");
   }
 }
 
 // POST /api/issues - Create a new issue
 export async function POST(request: NextRequest) {
+  // Authentication is now handled by middleware
+  // We can assume session and session.user exist
   const session = await auth();
   
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // Check authorization for creating issues
+  const authError = checkAuthorization(session, "issue", "create");
+  if (authError) return authError;
   
   try {
     const body = await request.json();
     
     // Validate request body
-    const validationResult = issueSchema.safeParse(body);
+    const validationResult = issueCreateSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: "Validation failed", details: validationResult.error.format() },
-        { status: 400 }
-      );
+      return ApiErrors.validationFailed(validationResult.error.format());
     }
     
     const data = validationResult.data;
-    const prismaAny = prisma as any;
     
     // Create the issue
-    const issue = await prismaAny.issue.create({
+    const issue = await prisma.issue.create({
       data: {
         title: data.title,
         description: data.description,
         status: data.status || "OPEN",
         priority: data.priority || "MEDIUM",
         assignedToId: data.assignedToId,
-        reportedById: session.user.id, // Current user is the reporter
+        reportedById: session?.user?.id, // Current user is the reporter
       },
       include: {
         assignedTo: {
@@ -140,12 +129,9 @@ export async function POST(request: NextRequest) {
       },
     });
     
-    return NextResponse.json(issue, { status: 201 });
+    return createSuccessResponse(issue, 201, "Issue created successfully");
   } catch (error) {
     console.error("Error creating issue:", error);
-    return NextResponse.json(
-      { error: "Failed to create issue" },
-      { status: 500 }
-    );
+    return ApiErrors.serverError("Failed to create issue");
   }
 } 

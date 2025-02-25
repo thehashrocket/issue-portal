@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 
 export async function GET() {
   const session = await auth();
@@ -21,12 +22,12 @@ export async function GET() {
     });
     
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return ApiErrors.notFound("User");
     }
     
-    return NextResponse.json({ user });
+    return createSuccessResponse(user, 200, "User profile retrieved successfully");
   } catch (error) {
     console.error("Error fetching user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return ApiErrors.serverError("Failed to fetch user");
   }
 } 
