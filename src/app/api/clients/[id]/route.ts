@@ -105,6 +105,9 @@ export async function PUT(
         address: data.address,
         website: data.website,
         description: data.description,
+        primaryContact: data.primaryContact,
+        sla: data.sla,
+        notes: data.notes,
         status: data.status,
         managerId: data.managerId,
       },
@@ -126,7 +129,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/clients/[id] - Delete a specific client
+// DELETE /api/clients/[id] - Soft delete a specific client
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -150,20 +153,97 @@ export async function DELETE(
       return ApiErrors.notFound("Client");
     }
     
-    // Only ADMIN can delete clients
-    // ACCOUNT_MANAGER can only mark clients as INACTIVE
-    if (session?.user?.role !== "ADMIN") {
-      return ApiErrors.forbidden("Only administrators can delete clients");
+    // Check if user has permission to delete this client
+    if (
+      session?.user?.role !== "ADMIN" &&
+      existingClient.managerId !== session?.user?.id
+    ) {
+      return ApiErrors.forbidden("You don't have permission to delete this client");
     }
     
-    // Delete the client
-    await prismaAny.client.delete({
+    // Soft delete the client by setting status to INACTIVE
+    const updatedClient = await prismaAny.client.update({
+      where: { id },
+      data: {
+        status: "INACTIVE",
+      },
+    });
+    
+    return createSuccessResponse({ id }, 200, "Client soft deleted successfully");
+  } catch (error) {
+    console.error("Error soft deleting client:", error);
+    return ApiErrors.serverError("Failed to soft delete client");
+  }
+}
+
+// PATCH /api/clients/[id] - Partially update a specific client
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const session = await auth();
+  
+  // Check authorization for updating clients
+  const authError = checkAuthorization(session, "client", "update");
+  if (authError) return authError;
+  
+  try {
+    const { id } = params;
+    const body = await request.json();
+    const prismaAny = prisma as any;
+    
+    // Validate request body
+    const validationResult = clientUpdateSchema.safeParse(body);
+    
+    if (!validationResult.success) {
+      return ApiErrors.validationFailed(validationResult.error.format());
+    }
+    
+    // Check if client exists and user has permission
+    const existingClient = await prismaAny.client.findUnique({
       where: { id },
     });
     
-    return createSuccessResponse({ id }, 200, "Client deleted successfully");
+    if (!existingClient) {
+      return ApiErrors.notFound("Client");
+    }
+    
+    // Check if user has permission to update this client
+    if (
+      session?.user?.role !== "ADMIN" &&
+      existingClient.managerId !== session?.user?.id
+    ) {
+      return ApiErrors.forbidden("You don't have permission to update this client");
+    }
+    
+    const data = validationResult.data;
+    
+    // Update the client with only the fields that were provided
+    const updateData = Object.entries(data).reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+    
+    // Update the client
+    const updatedClient = await prismaAny.client.update({
+      where: { id },
+      data: updateData,
+      include: {
+        manager: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+    
+    return createSuccessResponse(updatedClient, 200, "Client updated successfully");
   } catch (error) {
-    console.error("Error deleting client:", error);
-    return ApiErrors.serverError("Failed to delete client");
+    console.error("Error updating client:", error);
+    return ApiErrors.serverError("Failed to update client");
   }
 } 

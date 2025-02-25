@@ -92,6 +92,9 @@ export async function POST(request: NextRequest) {
         address: data.address,
         website: data.website,
         description: data.description,
+        primaryContact: data.primaryContact,
+        sla: data.sla,
+        notes: data.notes,
         status: data.status || "ACTIVE",
         managerId: data.managerId || session?.user?.id, // Default to current user if not specified
       },

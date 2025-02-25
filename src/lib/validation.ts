@@ -47,6 +47,9 @@ export const clientBaseSchema = {
   address: z.string().optional().nullable(),
   website: z.string().url().optional().nullable(),
   description: z.string().optional().nullable(),
+  primaryContact: z.string().optional().nullable(),
+  sla: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
   status: z.enum(["ACTIVE", "INACTIVE", "LEAD", "FORMER"]).optional(),
   managerId: z.string().uuid().optional().nullable(),
 };

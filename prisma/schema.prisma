@@ -60,18 +60,21 @@ model VerificationToken {
 }
 
 model Client {
-  id          String       @id @default(uuid())
-  name        String
-  email       String?
-  phone       String?
-  address     String?
-  website     String?
-  description String?
-  status      ClientStatus @default(ACTIVE)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  managerId   String?
-  manager     User?        @relation(fields: [managerId], references: [id])
+  id              String       @id @default(uuid())
+  name            String
+  email           String?
+  phone           String?
+  address         String?
+  website         String?
+  description     String?
+  primaryContact  String?
+  sla             String?
+  notes           String?
+  status          ClientStatus @default(ACTIVE)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  managerId       String?
+  manager         User?        @relation(fields: [managerId], references: [id])
 
   @@index([managerId])
 }
