@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Pagination from "@/components/ui/Pagination";
 
 // Types
 type IssueStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
@@ -98,12 +99,11 @@ export default function IssuesPage() {
     router.push(`/issues?${params.toString()}`);
   };
   
-  // Pagination
+  // Calculate total pages
   const totalPages = Math.ceil(totalIssues / ITEMS_PER_PAGE);
   
+  // Handle page change
   const goToPage = (page: number) => {
-    if (page < 1 || page > totalPages) return;
-    
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
     router.push(`/issues?${params.toString()}`);
@@ -264,45 +264,11 @@ export default function IssuesPage() {
       )}
       
       {/* Pagination */}
-      {!loading && !error && totalPages > 1 && (
-        <div className="flex justify-center mt-6">
-          <nav className="flex items-center">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-3 py-1 rounded-l border ${
-                currentPage === 1 ? "bg-gray-100 text-gray-400" : "bg-white text-blue-600 hover:bg-blue-50"
-              }`}
-            >
-              Previous
-            </button>
-            
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => goToPage(page)}
-                className={`px-3 py-1 border-t border-b ${
-                  currentPage === page
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-blue-600 hover:bg-blue-50"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-            
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded-r border ${
-                currentPage === totalPages ? "bg-gray-100 text-gray-400" : "bg-white text-blue-600 hover:bg-blue-50"
-              }`}
-            >
-              Next
-            </button>
-          </nav>
-        </div>
-      )}
+      <Pagination 
+        currentPage={currentPage} 
+        totalPages={totalPages} 
+        onPageChange={goToPage} 
+      />
     </div>
   );
 } 

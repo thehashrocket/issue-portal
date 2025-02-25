@@ -61,7 +61,17 @@ export async function GET(request: NextRequest) {
     // Get paginated issues
     const issues = await prisma.issue.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        status: true,
+        priority: true,
+        assignedToId: true,
+        reportedById: true,
+        createdAt: true,
+        updatedAt: true,
+        dueDate: true,
         assignedTo: {
           select: {
             id: true,
@@ -138,7 +148,17 @@ export async function POST(request: NextRequest) {
         reportedById: session?.user?.id, // Current user is the reporter
         dueDate: dueDate,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        status: true,
+        priority: true,
+        assignedToId: true,
+        reportedById: true,
+        createdAt: true,
+        updatedAt: true,
+        dueDate: true,
         assignedTo: {
           select: {
             id: true,

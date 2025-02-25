@@ -40,7 +40,17 @@ export async function GET(request: NextRequest) {
       clients = await prismaAny.client.findMany({
         skip,
         take: validPageSize,
-        include: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          address: true,
+          website: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          managerId: true,
           manager: {
             select: {
               id: true,
@@ -69,7 +79,17 @@ export async function GET(request: NextRequest) {
         },
         skip,
         take: validPageSize,
-        include: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          address: true,
+          website: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          managerId: true,
           manager: {
             select: {
               id: true,

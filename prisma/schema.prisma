@@ -78,6 +78,10 @@ model Client {
   manager         User?        @relation(fields: [managerId], references: [id])
 
   @@index([managerId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@index([name])
 }
 
 model Issue {
@@ -99,6 +103,10 @@ model Issue {
 
   @@index([assignedToId])
   @@index([reportedById])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model File {
