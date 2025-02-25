@@ -5,10 +5,9 @@ import { randomUUID } from 'crypto';
 // Initialize S3 client
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-  },
+  // When running on an EC2 instance with an IAM role attached,
+  // the SDK will automatically use the instance profile credentials
+  // No need to specify credentials explicitly
 });
 
 const bucketName = process.env.AWS_S3_BUCKET_NAME || '';
