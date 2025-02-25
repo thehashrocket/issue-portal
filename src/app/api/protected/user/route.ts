@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: Request) {
-  const token = await getToken({ req: request as any });
+export async function GET() {
+  const session = await auth();
   
-  if (!token || !token.sub) {
+  if (!session || !session.user.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   
   try {
     const user = await prisma.user.findUnique({
-      where: { id: token.sub },
+      where: { id: session.user.id },
       select: {
         id: true,
         name: true,

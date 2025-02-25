@@ -23,7 +23,7 @@ declare module "next-auth" {
 const prisma = new PrismaClient();
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma) as any, // Using 'any' to bypass type issues
+  adapter: PrismaAdapter(prisma) as any,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,

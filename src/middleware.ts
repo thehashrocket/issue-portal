@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const session = await auth();
   
   // Check if the user is authenticated for protected routes
   const isProtectedRoute = request.nextUrl.pathname.startsWith("/api/protected");
   
-  if (isProtectedRoute && !token) {
+  if (isProtectedRoute && !session) {
     return NextResponse.json(
       { error: "Unauthorized" },
       { status: 401 }
