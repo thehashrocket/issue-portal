@@ -41,6 +41,27 @@ export function isAccountManager(session: Session | null): boolean {
 }
 
 /**
+ * Check if a user has developer role
+ */
+export function isDeveloper(session: Session | null): boolean {
+  return !!session?.user?.role && session.user.role === ("DEVELOPER" as Role);
+}
+
+/**
+ * Check if a user has one of the allowed roles
+ * @param user The user object from the session
+ * @param allowedRoles Array of roles that are allowed
+ * @returns true if the user has one of the allowed roles, false otherwise
+ */
+export function checkRole(user: Session["user"] | null, allowedRoles: string[]): boolean {
+  if (!user || !user.role) {
+    return false;
+  }
+  
+  return allowedRoles.includes(user.role as string);
+}
+
+/**
  * Check if a user is the owner of a resource
  */
 export function isOwner(session: Session | null, ownerId: string): boolean {
@@ -66,18 +87,18 @@ type UserUpdateData = { userId: string };
 export const authorizationRules = {
   issue: {
     view: (session: Session | null, data: IssueViewData): boolean => {
-      return isAdmin(session) || isOwner(session, data.reportedById) || isAssigned(session, data.assignedToId);
+      return isAdmin(session) || isDeveloper(session) || isOwner(session, data.reportedById) || isAssigned(session, data.assignedToId);
     },
     create: (session: Session | null): boolean => {
       // Any authenticated user can create an issue
       return !!session?.user;
     },
     update: (session: Session | null, data: IssueUpdateData): boolean => {
-      return isAdmin(session) || isOwner(session, data.reportedById) || isAssigned(session, data.assignedToId);
+      return isAdmin(session) || isDeveloper(session) || isOwner(session, data.reportedById) || isAssigned(session, data.assignedToId);
     },
     delete: (session: Session | null, data: IssueDeleteData): boolean => {
-      // Only admins and the reporter can delete an issue
-      return isAdmin(session) || isOwner(session, data.reportedById);
+      // Only admins, developers, and the reporter can delete an issue
+      return isAdmin(session) || isDeveloper(session) || isOwner(session, data.reportedById);
     },
     list: (session: Session | null): boolean => {
       // Any authenticated user can list issues
@@ -86,7 +107,7 @@ export const authorizationRules = {
   },
   client: {
     view: (session: Session | null): boolean => {
-      return isAdmin(session) || isAccountManager(session);
+      return isAdmin(session) || isAccountManager(session) || isDeveloper(session);
     },
     create: (session: Session | null): boolean => {
       return isAdmin(session) || isAccountManager(session);
@@ -99,7 +120,7 @@ export const authorizationRules = {
       return isAdmin(session);
     },
     list: (session: Session | null): boolean => {
-      return isAdmin(session) || isAccountManager(session);
+      return isAdmin(session) || isAccountManager(session) || isDeveloper(session);
     }
   },
   user: {

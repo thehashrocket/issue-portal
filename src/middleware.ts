@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { ApiErrors } from "@/lib/api-utils";
-import { isAdmin, isAccountManager, checkAuthorization } from "@/lib/auth-utils";
+import { isAdmin, isAccountManager, checkAuthorization, checkRole, isDeveloper } from "@/lib/auth-utils";
 
 export async function middleware(request: NextRequest) {
   const session = await auth();
@@ -27,21 +27,21 @@ export async function middleware(request: NextRequest) {
     }
     
     // Then check authorization (admin role)
-    if (!isAdmin(session)) {
+    if (!checkRole(session.user, ["ADMIN"])) {
       return ApiErrors.forbidden("Forbidden: Admin access required");
     }
   }
   
-  // Handle authorization for client routes (ADMIN and ACCOUNT_MANAGER only)
+  // Handle authorization for client routes (ADMIN, ACCOUNT_MANAGER, and DEVELOPER only)
   if (isClientRoute) {
     // First check authentication
     if (!session || !session.user) {
       return ApiErrors.unauthorized();
     }
     
-    // Then check authorization (ADMIN or ACCOUNT_MANAGER role)
-    if (!isAdmin(session) && !isAccountManager(session)) {
-      return ApiErrors.forbidden("Forbidden: Admin or Account Manager access required");
+    // Then check authorization (ADMIN, ACCOUNT_MANAGER, or DEVELOPER role)
+    if (!checkRole(session.user, ["ADMIN", "ACCOUNT_MANAGER", "DEVELOPER"])) {
+      return ApiErrors.forbidden("Forbidden: Admin, Account Manager, or Developer access required");
     }
   }
   
@@ -52,7 +52,8 @@ export async function middleware(request: NextRequest) {
       return ApiErrors.unauthorized();
     }
     
-    // Authorization for specific issue operations will be handled in the route handlers
+    // All authenticated users can access issue routes, but specific operations
+    // will be authorized in the route handlers based on role and ownership
   }
   
   return NextResponse.next();

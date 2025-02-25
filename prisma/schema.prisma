@@ -116,6 +116,7 @@ enum Role {
   USER
   ADMIN
   ACCOUNT_MANAGER
+  DEVELOPER
 }
 
 enum ClientStatus {
