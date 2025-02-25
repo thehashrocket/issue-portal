@@ -1,6 +1,6 @@
 import { createMocks } from 'node-mocks-http';
 import { POST } from '@/app/api/files/upload/route';
-import { GET } from '@/app/api/files/[issueId]/route';
+import { GET } from '@/app/api/issues/[id]/files/route';
 import { DELETE } from '@/app/api/files/[id]/route';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
@@ -168,26 +168,26 @@ describe('File API', () => {
     });
   });
 
-  describe('GET /api/files/[issueId]', () => {
+  describe('GET /api/issues/[id]/files', () => {
     it('should return 401 if user is not authenticated', async () => {
       (auth as jest.Mock).mockResolvedValue(null);
       
-      const req = new NextRequest('http://localhost/api/files/issue-123', {
+      const req = new NextRequest('http://localhost/api/issues/issue-123/files', {
         method: 'GET',
       });
       
-      const response = await GET(req, { params: { issueId: 'issue-123' } });
+      const response = await GET(req, { params: { id: 'issue-123' } });
       expect(response.status).toBe(401);
       const body = await response.json();
       expect(body.error).toBe('Unauthorized');
     });
 
     it('should return files for an issue', async () => {
-      const req = new NextRequest('http://localhost/api/files/issue-123', {
+      const req = new NextRequest('http://localhost/api/issues/issue-123/files', {
         method: 'GET',
       });
       
-      const response = await GET(req, { params: { issueId: 'issue-123' } });
+      const response = await GET(req, { params: { id: 'issue-123' } });
       expect(response.status).toBe(200);
       
       // Verify that the database was queried

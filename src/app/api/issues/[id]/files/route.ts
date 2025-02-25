@@ -7,7 +7,7 @@ import prisma from '@/lib/prisma';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { issueId: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     // Check authentication
@@ -19,10 +19,10 @@ export async function GET(
       );
     }
 
-    const { issueId } = params;
+    const { id } = params;
 
-    // Validate issueId
-    if (!issueId || typeof issueId !== 'string') {
+    // Validate issue ID
+    if (!id || typeof id !== 'string') {
       return NextResponse.json(
         { error: 'Invalid issue ID' },
         { status: 400 }
@@ -32,7 +32,7 @@ export async function GET(
     // Get files for the issue
     const files = await prisma.file.findMany({
       where: {
-        issueId,
+        issueId: id,
       },
       orderBy: {
         createdAt: 'desc',
