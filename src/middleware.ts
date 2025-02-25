@@ -9,6 +9,7 @@ export async function middleware(request: NextRequest) {
   // Check if the route requires authentication
   const isProtectedRoute = pathname.startsWith("/api/protected");
   const isAdminRoute = pathname.startsWith("/api/users");
+  const isClientRoute = pathname.startsWith("/api/clients");
   
   // Handle authentication for protected routes
   if (isProtectedRoute && (!session || !session.user)) {
@@ -37,6 +38,26 @@ export async function middleware(request: NextRequest) {
     }
   }
   
+  // Handle authorization for client routes (ADMIN and ACCOUNT_MANAGER only)
+  if (isClientRoute) {
+    // First check authentication
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: "Unauthorized: Authentication required" },
+        { status: 401 }
+      );
+    }
+    
+    // Then check authorization (ADMIN or ACCOUNT_MANAGER role)
+    const userRole = session.user.role as string;
+    if (userRole !== "ADMIN" && userRole !== "ACCOUNT_MANAGER") {
+      return NextResponse.json(
+        { error: "Forbidden: Admin or Account Manager access required" },
+        { status: 403 }
+      );
+    }
+  }
+  
   return NextResponse.next();
 }
 
@@ -45,5 +66,6 @@ export const config = {
   matcher: [
     "/api/protected/:path*",
     "/api/users/:path*",
+    "/api/clients/:path*",
   ],
 }; 
