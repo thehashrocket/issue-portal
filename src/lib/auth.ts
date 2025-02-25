@@ -1,9 +1,10 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
 import type { Role } from "@prisma/client";
-import type { DefaultSession } from "next-auth";
+import type { DefaultSession, Session, User } from "next-auth";
+import type { Adapter } from "next-auth/adapters";
+import prisma from "./prisma";
 
 // Define custom types for the session
 declare module "next-auth" {
@@ -15,15 +16,12 @@ declare module "next-auth" {
   }
 
   interface User {
-    id: string;
     role: Role;
   }
 }
 
-const prisma = new PrismaClient();
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma) as any,
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -31,7 +29,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ session, user }: { session: any; user: any }) {
+    async session({ 
+      session, 
+      user 
+    }: { 
+      session: Session; 
+      user: User & { role: Role; id: string; }
+    }) {
       if (session.user && user) {
         session.user.id = user.id;
         session.user.role = user.role;

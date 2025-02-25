@@ -1,14 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { signIn, signOut } from 'next-auth/react';
-import { Session } from 'next-auth';
+import { signIn, signOut, useSession } from 'next-auth/react';
 
-interface NavbarProps {
-  session: Session | null;
-}
+export default function Navbar() {
+  const { data: session, status } = useSession();
+  const isLoading = status === 'loading';
 
-export default function Navbar({ session }: NavbarProps) {
   return (
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4">
@@ -19,7 +17,9 @@ export default function Navbar({ session }: NavbarProps) {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
-            {session ? (
+            {isLoading ? (
+              <span className="text-sm text-gray-500">Loading...</span>
+            ) : session ? (
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-700">
                   {session.user?.name || session.user?.email}
