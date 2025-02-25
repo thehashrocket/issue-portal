@@ -22,6 +22,7 @@ model User {
   assignedIssues Issue[]   @relation("AssignedIssues")
   reportedIssues Issue[]   @relation("ReportedIssues")
   uploadedFiles File[]     @relation("UploadedFiles")
+  comments      Comment[]
 }
 
 model Account {
@@ -89,6 +90,7 @@ model Issue {
   updatedAt   DateTime      @updatedAt
   dueDate     DateTime?
   files       File[]
+  comments    Comment[]
 
   @@index([assignedToId])
   @@index([reportedById])
@@ -110,6 +112,20 @@ model File {
   updatedAt   DateTime  @updatedAt
 
   @@index([uploadedById])
+  @@index([issueId])
+}
+
+model Comment {
+  id          String    @id @default(uuid())
+  text        String
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdById String
+  issue       Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issueId     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([createdById])
   @@index([issueId])
 }
 

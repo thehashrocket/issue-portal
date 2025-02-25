@@ -6,7 +6,7 @@ import { Role } from "@prisma/client";
 /**
  * Types of resources that can be authorized
  */
-export type ResourceType = "issue" | "client" | "user";
+export type ResourceType = "issue" | "client" | "user" | "comment";
 
 /**
  * Actions that can be performed on resources
@@ -80,6 +80,7 @@ type IssueViewData = { reportedById: string; assignedToId: string | null };
 type IssueUpdateData = { reportedById: string; assignedToId: string | null };
 type IssueDeleteData = { reportedById: string };
 type UserUpdateData = { userId: string };
+type CommentDeleteData = { createdById: string };
 
 /**
  * Authorization rules for different resources and actions
@@ -144,6 +145,20 @@ export const authorizationRules = {
     },
     list: (session: Session | null): boolean => {
       return isAdmin(session);
+    }
+  },
+  comment: {
+    create: (session: Session | null): boolean => {
+      // Any authenticated user can create a comment
+      return !!session?.user;
+    },
+    delete: (session: Session | null, data: CommentDeleteData): boolean => {
+      // Only admins and the comment creator can delete a comment
+      return isAdmin(session) || isOwner(session, data.createdById);
+    },
+    list: (session: Session | null): boolean => {
+      // Any authenticated user can list comments
+      return !!session?.user;
     }
   }
 };

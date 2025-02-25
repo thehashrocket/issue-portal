@@ -98,4 +98,19 @@ export const userUpdateSchema = z.object({
 
 // Types derived from the user schemas
 export type UserCreateInput = z.infer<typeof userCreateSchema>;
-export type UserUpdateInput = z.infer<typeof userUpdateSchema>; 
+export type UserUpdateInput = z.infer<typeof userUpdateSchema>;
+
+// ==================== COMMENT SCHEMAS ====================
+
+// Base schema with common fields for comment creation
+export const commentBaseSchema = {
+  text: z.string().min(1, "Comment text is required"),
+};
+
+// Schema for comment creation
+export const commentCreateSchema = z.object({
+  ...commentBaseSchema,
+});
+
+// Types derived from the comment schemas
+export type CommentCreateInput = z.infer<typeof commentCreateSchema>; 
