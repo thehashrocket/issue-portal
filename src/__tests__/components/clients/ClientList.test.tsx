@@ -238,4 +238,51 @@ describe('ClientList Component', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/clients?page=2&pageSize=10');
     });
   });
+
+  it('displays pagination information correctly', async () => {
+    // Mock a response with multiple pages
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: mockClients }),
+      headers: {
+        get: (header: string) => {
+          switch (header) {
+            case 'X-Total-Count':
+              return '25';
+            case 'X-Page':
+              return '2';
+            case 'X-Page-Size':
+              return '10';
+            case 'X-Total-Pages':
+              return '3';
+            default:
+              return null;
+          }
+        },
+      },
+    });
+    
+    // Set the current page in the URL params
+    mockSearchParams.set('page', '2');
+    
+    await act(async () => {
+      render(<ClientList />);
+    });
+    
+    // Wait for loading to finish
+    await waitFor(() => {
+      expect(screen.getByText('Test Client 1')).toBeInTheDocument();
+    });
+    
+    // Check that pagination info is displayed correctly
+    expect(screen.getByText('Page 2 of 3')).toBeInTheDocument();
+    
+    // Check that page buttons are rendered
+    const pageButtons = screen.getAllByRole('button', { name: /[0-9]+/ });
+    expect(pageButtons.length).toBeGreaterThan(0);
+    
+    // Check that the current page button has the active style
+    const page2Button = screen.getByRole('button', { name: '2' });
+    expect(page2Button).toHaveClass('bg-blue-50');
+  });
 }); 

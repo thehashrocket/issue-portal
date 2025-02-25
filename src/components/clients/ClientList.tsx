@@ -62,9 +62,18 @@ export default function ClientList() {
         const data = await response.json();
         setClients(data.data);
         
-        // Calculate total pages based on total count
+        // Get pagination information from headers
         const totalCount = parseInt(response.headers.get('X-Total-Count') || '0');
-        setTotalPages(Math.ceil(totalCount / pageSize) || 1);
+        const totalPages = parseInt(response.headers.get('X-Total-Pages') || '1');
+        setTotalPages(totalPages || 1);
+        
+        // Log pagination info for debugging
+        console.log('Pagination:', {
+          page,
+          pageSize,
+          totalCount,
+          totalPages,
+        });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -249,19 +258,37 @@ export default function ClientList() {
               </button>
               
               {/* Page numbers */}
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => handlePageChange(i + 1)}
-                  className={`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${
-                    currentPage === i + 1
-                      ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                      : 'text-gray-500 hover:bg-gray-50'
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                // Show pages around current page
+                let pageNum;
+                if (totalPages <= 5) {
+                  // If 5 or fewer pages, show all
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  // If near start, show first 5 pages
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  // If near end, show last 5 pages
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  // Otherwise show 2 before and 2 after current page
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                      currentPage === pageNum
+                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
               
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
@@ -278,6 +305,11 @@ export default function ClientList() {
                 </svg>
               </button>
             </nav>
+            
+            {/* Page info */}
+            <div className="text-sm text-gray-500 ml-4 self-center">
+              Page {currentPage} of {totalPages}
+            </div>
           </div>
         </>
       )}

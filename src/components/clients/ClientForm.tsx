@@ -126,10 +126,16 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
     
     if (!formData.name?.trim()) {
       errors.name = 'Name is required';
+    } else if (formData.name.trim().length < 2) {
+      errors.name = 'Name must be at least 2 characters';
     }
     
     if (formData.email && !/^\S+@\S+\.\S+$/.test(formData.email)) {
       errors.email = 'Invalid email format';
+    }
+    
+    if (formData.phone && !/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/.test(formData.phone)) {
+      errors.phone = 'Invalid phone number format';
     }
     
     if (formData.website && !/^https?:\/\/\S+\.\S+/.test(formData.website)) {
@@ -227,9 +233,11 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
                 validationErrors.name ? 'border-red-500' : 'border-gray-300'
               }`}
               required
+              aria-invalid={!!validationErrors.name}
+              aria-describedby={validationErrors.name ? "name-error" : undefined}
             />
             {validationErrors.name && (
-              <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
+              <p className="mt-1 text-sm text-red-600" id="name-error">{validationErrors.name}</p>
             )}
           </div>
           
@@ -247,9 +255,11 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
                 validationErrors.email ? 'border-red-500' : 'border-gray-300'
               }`}
+              aria-invalid={!!validationErrors.email}
+              aria-describedby={validationErrors.email ? "email-error" : undefined}
             />
             {validationErrors.email && (
-              <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+              <p className="mt-1 text-sm text-red-600" id="email-error">{validationErrors.email}</p>
             )}
           </div>
           
@@ -264,8 +274,15 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               name="phone"
               value={formData.phone || ''}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                validationErrors.phone ? 'border-red-500' : 'border-gray-300'
+              }`}
+              aria-invalid={!!validationErrors.phone}
+              aria-describedby={validationErrors.phone ? "phone-error" : undefined}
             />
+            {validationErrors.phone && (
+              <p className="mt-1 text-sm text-red-600" id="phone-error">{validationErrors.phone}</p>
+            )}
           </div>
           
           {/* Address */}
@@ -298,9 +315,11 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
                 validationErrors.website ? 'border-red-500' : 'border-gray-300'
               }`}
+              aria-invalid={!!validationErrors.website}
+              aria-describedby={validationErrors.website ? "website-error" : undefined}
             />
             {validationErrors.website && (
-              <p className="mt-1 text-sm text-red-600">{validationErrors.website}</p>
+              <p className="mt-1 text-sm text-red-600" id="website-error">{validationErrors.website}</p>
             )}
           </div>
           

@@ -14,13 +14,32 @@ export async function GET(request: NextRequest) {
   if (authError) return authError;
   
   try {
+    // Parse pagination parameters
+    const searchParams = request.nextUrl.searchParams;
+    const page = parseInt(searchParams.get('page') || '1');
+    const pageSize = parseInt(searchParams.get('pageSize') || '10');
+    
+    // Validate pagination parameters
+    const validPage = page > 0 ? page : 1;
+    const validPageSize = pageSize > 0 && pageSize <= 50 ? pageSize : 10;
+    
+    // Calculate skip value for pagination
+    const skip = (validPage - 1) * validPageSize;
+    
     let clients;
+    let totalCount;
     const prismaAny = prisma as any;
     
     // If user is ADMIN, return all clients
     // If user is ACCOUNT_MANAGER, return only their clients
     if (session?.user?.role === "ADMIN") {
+      // Get total count for pagination
+      totalCount = await prismaAny.client.count();
+      
+      // Get paginated clients
       clients = await prismaAny.client.findMany({
+        skip,
+        take: validPageSize,
         include: {
           manager: {
             select: {
@@ -36,10 +55,20 @@ export async function GET(request: NextRequest) {
       });
     } else {
       // For ACCOUNT_MANAGER, only return clients they manage
+      // Get total count for pagination
+      totalCount = await prismaAny.client.count({
+        where: {
+          managerId: session?.user?.id,
+        },
+      });
+      
+      // Get paginated clients
       clients = await prismaAny.client.findMany({
         where: {
           managerId: session?.user?.id,
         },
+        skip,
+        take: validPageSize,
         include: {
           manager: {
             select: {
@@ -55,7 +84,16 @@ export async function GET(request: NextRequest) {
       });
     }
     
-    return createSuccessResponse(clients);
+    // Create response with pagination headers
+    const response = NextResponse.json({ data: clients });
+    
+    // Add pagination headers
+    response.headers.set('X-Total-Count', totalCount.toString());
+    response.headers.set('X-Page', validPage.toString());
+    response.headers.set('X-Page-Size', validPageSize.toString());
+    response.headers.set('X-Total-Pages', Math.ceil(totalCount / validPageSize).toString());
+    
+    return response;
   } catch (error) {
     console.error("Error fetching clients:", error);
     return ApiErrors.serverError("Failed to fetch clients");

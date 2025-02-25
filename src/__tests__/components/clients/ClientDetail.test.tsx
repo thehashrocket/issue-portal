@@ -66,11 +66,50 @@ describe('ClientDetail Component', () => {
   });
 
   it('renders loading state initially', async () => {
-    await act(async () => {
-      render(<ClientDetail clientId="client-1" />);
+    // Create a promise that we can control when to resolve
+    let resolvePromise: (value: any) => void;
+    const promise = new Promise((resolve) => {
+      resolvePromise = resolve;
     });
     
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    // Mock fetch to return our controlled promise
+    (global.fetch as jest.Mock).mockImplementationOnce(() => promise);
+    
+    render(<ClientDetail clientId="client-1" />);
+    
+    // At this point, the component should be in loading state
+    // Check for the loading spinner
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    
+    // Now resolve the promise to complete loading
+    resolvePromise!({
+      ok: true,
+      json: async () => ({
+        data: {
+          id: 'client-1',
+          name: 'Test Client',
+          email: 'client@example.com',
+          phone: '123-456-7890',
+          website: 'https://example.com',
+          address: '123 Test St, Test City',
+          primaryContact: 'John Doe',
+          status: 'ACTIVE',
+          managerId: 'manager-1',
+          manager: { id: 'manager-1', name: 'Test Manager' },
+          sla: 'Standard',
+          description: 'Test description',
+          notes: 'Test notes',
+          createdAt: '2025-02-25T00:00:00.000Z',
+          updatedAt: '2025-02-25T00:00:00.000Z'
+        }
+      })
+    });
+    
+    // Wait for the component to update
+    await waitFor(() => {
+      // Use a more specific selector to find the client name in the heading
+      expect(screen.getByRole('heading', { level: 1, name: 'Test Client' })).toBeInTheDocument();
+    });
   });
 
   it('renders client details after loading', async () => {
