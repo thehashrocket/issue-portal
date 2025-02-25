@@ -8,6 +8,7 @@ import { PrismaClient } from '@prisma/client';
 type PrismaClientWithIssue = PrismaClient & {
   issue: any;
   file: any;
+  notification: any;
 };
 
 // Add issue model to the global type

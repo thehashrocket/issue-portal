@@ -116,4 +116,23 @@ export const commentCreateSchema = z.object({
 });
 
 // Types derived from the comment schemas
-export type CommentCreateInput = z.infer<typeof commentCreateSchema>; 
+export type CommentCreateInput = z.infer<typeof commentCreateSchema>;
+
+// ==================== NOTIFICATION SCHEMAS ====================
+
+// Schema for notification creation
+export const notificationCreateSchema = z.object({
+  type: z.enum(["ISSUE_ASSIGNED", "COMMENT_ADDED", "STATUS_CHANGED"]),
+  message: z.string().min(1, "Message is required"),
+  userId: z.string().uuid(),
+  issueId: z.string().uuid().optional(),
+});
+
+// Schema for notification update (mark as read)
+export const notificationUpdateSchema = z.object({
+  read: z.boolean(),
+});
+
+// Types derived from the notification schemas
+export type NotificationCreateInput = z.infer<typeof notificationCreateSchema>;
+export type NotificationUpdateInput = z.infer<typeof notificationUpdateSchema>; 

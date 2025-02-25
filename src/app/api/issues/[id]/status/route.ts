@@ -6,6 +6,7 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { isValidStatusTransition } from "@/lib/issue-status-utils";
 import { checkAuthorization } from "@/lib/auth-utils";
+import { NotificationService } from "@/lib/notification-service";
 
 // Define the schema for status update
 const statusUpdateSchema = z.object({
@@ -45,6 +46,10 @@ export async function PATCH(
     const existingIssue = await prisma.issue.findUnique({
       where: {
         id: params.id,
+      },
+      include: {
+        assignedTo: true,
+        reportedBy: true,
       },
     });
     
@@ -94,6 +99,27 @@ export async function PATCH(
           },
         },
       });
+      
+      // Send notifications to relevant users
+      // Notify the assignee if there is one
+      if (updatedIssue.assignedToId && session?.user?.id && updatedIssue.assignedToId !== session.user.id) {
+        await NotificationService.notifyStatusChanged(
+          params.id,
+          updatedIssue.title,
+          newStatus,
+          updatedIssue.assignedToId
+        );
+      }
+      
+      // Notify the reporter if they're not the one who changed the status
+      if (updatedIssue.reportedById && session?.user?.id && updatedIssue.reportedById !== session.user.id) {
+        await NotificationService.notifyStatusChanged(
+          params.id,
+          updatedIssue.title,
+          newStatus,
+          updatedIssue.reportedById
+        );
+      }
       
       return createSuccessResponse(updatedIssue, 200, "Issue status updated successfully");
     } catch (updateError) {

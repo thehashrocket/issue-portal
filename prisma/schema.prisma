@@ -23,6 +23,7 @@ model User {
   reportedIssues Issue[]   @relation("ReportedIssues")
   uploadedFiles File[]     @relation("UploadedFiles")
   comments      Comment[]
+  notifications Notification[]
 }
 
 model Account {
@@ -94,6 +95,7 @@ model Issue {
   dueDate     DateTime?
   files       File[]
   comments    Comment[]
+  notifications Notification[]
 
   @@index([assignedToId])
   @@index([reportedById])
@@ -132,6 +134,21 @@ model Comment {
   @@index([issueId])
 }
 
+model Notification {
+  id        String           @id @default(uuid())
+  type      NotificationType
+  message   String
+  read      Boolean          @default(false)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  issueId   String?
+  issue     Issue?           @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([issueId])
+}
+
 enum Role {
   USER
   ADMIN
@@ -162,4 +179,10 @@ enum IssuePriority {
   MEDIUM
   HIGH
   CRITICAL
+}
+
+enum NotificationType {
+  ISSUE_ASSIGNED
+  COMMENT_ADDED
+  STATUS_CHANGED
 }

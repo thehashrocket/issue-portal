@@ -5,6 +5,7 @@ import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { Prisma } from "@prisma/client";
 import { commentCreateSchema } from "@/lib/validation";
 import { checkAuthorization } from "@/lib/auth-utils";
+import { NotificationService } from "@/lib/notification-service";
 
 // Define a type for the comment with user details
 type CommentWithUser = {
@@ -104,6 +105,20 @@ export async function POST(
       where: {
         id: params.id,
       },
+      include: {
+        assignedTo: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        reportedBy: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
     
     if (!issue) {
@@ -151,6 +166,29 @@ export async function POST(
       const commentArray = comments as CommentWithUser[];
       return commentArray[0];
     });
+    
+    // Send notifications to relevant users
+    const currentUserName = session.user.name || session.user.email || "A user";
+    
+    // Notify the assignee if they're not the one who commented
+    if (issue.assignedToId && issue.assignedToId !== session.user.id) {
+      await NotificationService.notifyCommentAdded(
+        params.id,
+        issue.title,
+        currentUserName,
+        issue.assignedToId
+      );
+    }
+    
+    // Notify the reporter if they're not the one who commented
+    if (issue.reportedById !== session.user.id) {
+      await NotificationService.notifyCommentAdded(
+        params.id,
+        issue.title,
+        currentUserName,
+        issue.reportedById
+      );
+    }
     
     return createSuccessResponse(result, 201, "Comment created successfully");
   } catch (error) {

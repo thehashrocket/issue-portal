@@ -5,6 +5,7 @@ import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { isAdmin, isAccountManager } from "@/lib/auth-utils";
+import { NotificationService } from "@/lib/notification-service";
 
 // Validation schema for issue assignment
 const assignIssueSchema = z.object({
@@ -99,6 +100,15 @@ export async function PATCH(
           },
         },
       });
+      
+      // Send notification if issue is assigned to someone
+      if (assignedToId && assignedToId !== existingIssue.assignedToId) {
+        await NotificationService.notifyIssueAssigned(
+          params.id,
+          assignedToId,
+          updatedIssue.title
+        );
+      }
       
       return createSuccessResponse(updatedIssue, 200, "Issue assigned successfully");
     } catch (updateError) {
