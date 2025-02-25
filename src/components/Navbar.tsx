@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { signIn, signOut, useSession } from 'next-auth/react';
+import NotificationBell from './NotificationBell';
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -21,6 +22,7 @@ export default function Navbar() {
               <span className="text-sm text-gray-500">Loading...</span>
             ) : session ? (
               <div className="flex items-center space-x-4">
+                <NotificationBell />
                 <span className="text-sm text-gray-700">
                   {session.user?.name || session.user?.email}
                 </span>
