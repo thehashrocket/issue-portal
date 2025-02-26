@@ -7,6 +7,40 @@ import { isAdmin, checkAuthorization } from "@/lib/auth-utils";
 import { getDefaultDueDate } from "@/lib/date-utils";
 import { Prisma } from '@prisma/client';
 
+const issueSelect = {
+  id: true,
+  title: true,
+  description: true,
+  status: true,
+  priority: true,
+  assignedToId: true,
+  reportedById: true,
+  createdAt: true,
+  updatedAt: true,
+  dueDate: true,
+  clientId: true,
+  client: {
+    select: {
+      id: true,
+      name: true,
+    }
+  },
+  assignedTo: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  },
+  reportedBy: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  },
+} satisfies Prisma.IssueSelect;
+
 // GET /api/issues - Get all issues
 export async function GET(request: NextRequest) {
   // Authentication is now handled by middleware
@@ -62,39 +96,7 @@ export async function GET(request: NextRequest) {
     // Get paginated issues
     const issues = await prisma.issue.findMany({
       where,
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        status: true,
-        priority: true,
-        assignedToId: true,
-        reportedById: true,
-        createdAt: true,
-        updatedAt: true,
-        dueDate: true,
-        client: {
-          select: {
-            id: true,
-            name: true,
-          }
-        },
-        clientId: true,
-        assignedTo: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        reportedBy: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
+      select: issueSelect,
       orderBy: {
         updatedAt: "desc",
       },
@@ -157,39 +159,7 @@ export async function POST(request: NextRequest) {
         dueDate,
         clientId: data.clientId,
       } satisfies Prisma.IssueUncheckedCreateInput,
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        status: true,
-        priority: true,
-        assignedToId: true,
-        reportedById: true,
-        createdAt: true,
-        updatedAt: true,
-        dueDate: true,
-        client: {
-          select: {
-            id: true,
-            name: true,
-          }
-        },
-        clientId: true,
-        assignedTo: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        reportedBy: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
+      select: issueSelect,
     });
     
     return createSuccessResponse(issue, 201, "Issue created successfully");
