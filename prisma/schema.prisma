@@ -76,6 +76,7 @@ model Client {
   updatedAt       DateTime     @updatedAt
   managerId       String?
   manager         User?        @relation(fields: [managerId], references: [id])
+  issues          Issue[]      @relation("ClientIssues")
 
   @@index([managerId])
   @@index([status])
@@ -94,6 +95,8 @@ model Issue {
   assignedToId String?
   reportedBy  User          @relation("ReportedIssues", fields: [reportedById], references: [id])
   reportedById String
+  client      Client        @relation("ClientIssues", fields: [clientId], references: [id])
+  clientId    String
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   dueDate     DateTime?
@@ -103,6 +106,7 @@ model Issue {
 
   @@index([assignedToId])
   @@index([reportedById])
+  @@index([clientId])
   @@index([status])
   @@index([priority])
   @@index([createdAt])

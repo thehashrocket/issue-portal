@@ -1,12 +1,25 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
 import { ApiErrors } from "@/lib/api-utils";
-import { checkRole } from "@/lib/auth-utils";
 
 export async function middleware(request: NextRequest) {
-  const session = await auth();
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
+  
+  // Debug logging
+  console.log('Middleware executing for:', pathname + search);
+  
+  // Get the token from the cookie - check all possible cookie names
+  const sessionToken = 
+    request.cookies.get("next-auth.session-token")?.value || 
+    request.cookies.get("__Secure-next-auth.session-token")?.value ||
+    request.cookies.get("__Secure-authjs.session-token")?.value;  // Add this new format
+  
+  console.log('Cookie check:', {
+    hasNextAuthToken: !!request.cookies.get("next-auth.session-token"),
+    hasSecureNextAuthToken: !!request.cookies.get("__Secure-next-auth.session-token"),
+    hasSecureAuthJsToken: !!request.cookies.get("__Secure-authjs.session-token"),
+    allCookies: request.cookies.getAll().map(c => c.name)
+  });
   
   // Check if the route requires authentication
   const isProtectedRoute = pathname.startsWith("/api/protected");
@@ -14,46 +27,26 @@ export async function middleware(request: NextRequest) {
   const isClientRoute = pathname.startsWith("/api/clients");
   const isIssueRoute = pathname.startsWith("/api/issues");
   
-  // Handle authentication for protected routes
-  if (isProtectedRoute && (!session || !session.user)) {
-    return ApiErrors.unauthorized();
-  }
-  
-  // Handle authorization for admin-only routes
-  if (isAdminRoute) {
-    // First check authentication
-    if (!session || !session.user) {
-      return ApiErrors.unauthorized();
+  // If this is an API route that requires authentication
+  if ((isProtectedRoute || isAdminRoute || isClientRoute || isIssueRoute)) {
+    if (!sessionToken) {
+      console.log('No session token found for protected route:', pathname);
+      console.log('Available cookies:', request.cookies.getAll().map(c => c.name).join(', '));
+      
+      // Return JSON response for API routes
+      return new NextResponse(
+        JSON.stringify({ 
+          error: "Unauthorized",
+          message: "You must be signed in to access this resource"
+        }),
+        { 
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
-    
-    // Then check authorization (admin role)
-    if (!checkRole(session.user, ["ADMIN"])) {
-      return ApiErrors.forbidden("Forbidden: Admin access required");
-    }
-  }
-  
-  // Handle authorization for client routes (ADMIN, ACCOUNT_MANAGER, and DEVELOPER only)
-  if (isClientRoute) {
-    // First check authentication
-    if (!session || !session.user) {
-      return ApiErrors.unauthorized();
-    }
-    
-    // Then check authorization (ADMIN, ACCOUNT_MANAGER, or DEVELOPER role)
-    if (!checkRole(session.user, ["ADMIN", "ACCOUNT_MANAGER", "DEVELOPER"])) {
-      return ApiErrors.forbidden("Forbidden: Admin, Account Manager, or Developer access required");
-    }
-  }
-  
-  // Handle authentication for issue routes
-  if (isIssueRoute) {
-    // Check authentication
-    if (!session || !session.user) {
-      return ApiErrors.unauthorized();
-    }
-    
-    // All authenticated users can access issue routes, but specific operations
-    // will be authorized in the route handlers based on role and ownership
   }
   
   return NextResponse.next();
@@ -62,9 +55,10 @@ export async function middleware(request: NextRequest) {
 // Configure which routes to apply the middleware to
 export const config = {
   matcher: [
+    // Only match API routes that need protection
     "/api/protected/:path*",
     "/api/users/:path*",
     "/api/clients/:path*",
-    "/api/issues/:path*",
+    "/api/issues/:path*"
   ],
 }; 

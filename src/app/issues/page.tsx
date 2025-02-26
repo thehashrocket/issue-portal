@@ -2,39 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { IssueStatus, IssuePriority, Issue } from "@prisma/client";
 import Link from "next/link";
 import Pagination from "@/components/ui/Pagination";
 
-// Types
-type IssueStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
-type IssuePriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-
-type Issue = {
-  id: string;
-  title: string;
-  description: string | null;
-  status: IssueStatus;
-  priority: IssuePriority;
-  assignedToId: string | null;
-  reportedById: string;
-  createdAt: string;
-  updatedAt: string;
-  assignedTo: {
-    id: string;
-    name: string | null;
-    email: string;
-  } | null;
-  reportedBy: {
-    id: string;
-    name: string | null;
-    email: string;
-  };
-};
-
 // Constants
 const ITEMS_PER_PAGE = 10;
-const STATUS_OPTIONS = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"];
-const PRIORITY_OPTIONS = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
+const STATUS_OPTIONS = Object.values(IssueStatus);
+const PRIORITY_OPTIONS = Object.values(IssuePriority);
 
 export default function IssuesPage() {
   const router = useRouter();
@@ -112,14 +87,12 @@ export default function IssuesPage() {
   // Status badge color
   const getStatusColor = (status: IssueStatus) => {
     switch (status) {
-      case "OPEN":
+      case IssueStatus.NEW:
         return "bg-blue-100 text-blue-800";
-      case "IN_PROGRESS":
+      case IssueStatus.IN_PROGRESS:
         return "bg-yellow-100 text-yellow-800";
-      case "RESOLVED":
+      case IssueStatus.CLOSED:
         return "bg-green-100 text-green-800";
-      case "CLOSED":
-        return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -128,13 +101,13 @@ export default function IssuesPage() {
   // Priority badge color
   const getPriorityColor = (priority: IssuePriority) => {
     switch (priority) {
-      case "LOW":
+      case IssuePriority.LOW:
         return "bg-gray-100 text-gray-800";
-      case "MEDIUM":
+      case IssuePriority.MEDIUM:
         return "bg-blue-100 text-blue-800";
-      case "HIGH":
+      case IssuePriority.HIGH:
         return "bg-orange-100 text-orange-800";
-      case "CRITICAL":
+      case IssuePriority.CRITICAL:
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
