@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { ApiErrors } from "@/lib/api-utils";
+// import { ApiErrors } from "@/lib/api-utils";
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;

@@ -3,36 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-
-// Define ClientStatus enum to match Prisma schema
-enum ClientStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  LEAD = 'LEAD',
-  FORMER = 'FORMER'
-}
-
-// Define the Client type based on the Prisma schema
-type Client = {
-  id: string;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  address: string | null;
-  website: string | null;
-  description: string | null;
-  primaryContact: string | null;
-  sla: string | null;
-  notes: string | null;
-  status: ClientStatus;
-  manager: {
-    id: string;
-    name: string | null;
-    email: string | null;
-  } | null;
-  createdAt: string;
-  updatedAt: string;
-};
+import { ClientStatus, Client } from '@prisma/client';
 
 interface ClientDetailProps {
   clientId: string;
