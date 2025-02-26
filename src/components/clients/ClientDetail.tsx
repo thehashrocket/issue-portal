@@ -3,7 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { ClientStatus, Client } from '@prisma/client';
+import { ClientStatus, Client as PrismaClient, User } from '@prisma/client';
+
+// Extended Client type to include manager relation
+type Client = PrismaClient & {
+  manager?: Pick<User, 'id' | 'name' | 'email'> | null;
+};
 
 interface ClientDetailProps {
   clientId: string;
@@ -44,8 +49,8 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
   }, [clientId]);
 
   // Format date for display
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString();
   };
 
   // Status badge component
@@ -252,12 +257,12 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
             
             <div>
               <dt className="text-sm font-medium text-gray-500">Created At</dt>
-              <dd className="mt-1 text-sm text-gray-900">{formatDate(client.createdAt)}</dd>
+              <dd className="mt-1 text-sm text-gray-900">{formatDate(new Date(client.createdAt))}</dd>
             </div>
             
             <div>
               <dt className="text-sm font-medium text-gray-500">Last Updated</dt>
-              <dd className="mt-1 text-sm text-gray-900">{formatDate(client.updatedAt)}</dd>
+              <dd className="mt-1 text-sm text-gray-900">{formatDate(new Date(client.updatedAt))}</dd>
             </div>
           </dl>
         </div>

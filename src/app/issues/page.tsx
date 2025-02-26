@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { IssueStatus, IssuePriority, Issue } from "@prisma/client";
+import { IssueStatus, IssuePriority, Issue as PrismaIssue, User } from "@prisma/client";
 import Link from "next/link";
 import Pagination from "@/components/ui/Pagination";
 
@@ -10,6 +10,12 @@ import Pagination from "@/components/ui/Pagination";
 const ITEMS_PER_PAGE = 10;
 const STATUS_OPTIONS = Object.values(IssueStatus);
 const PRIORITY_OPTIONS = Object.values(IssuePriority);
+
+// Extended Issue type to include user relations
+type Issue = PrismaIssue & {
+  reportedBy: Pick<User, 'id' | 'name' | 'email'>;
+  assignedTo?: Pick<User, 'id' | 'name' | 'email'> | null;
+};
 
 export default function IssuesPage() {
   const router = useRouter();
