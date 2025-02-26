@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IssueStatus, IssuePriority } from "@prisma/client";
+import { IssueStatus, IssuePriority, User, Client } from "@prisma/client";
 // z is imported but not used directly in this file
 // import { z } from "zod";
 import Link from "next/link";
@@ -16,61 +16,51 @@ import { issueCreateSchema, type IssueCreateInput } from "@/lib/validation";
 const STATUS_OPTIONS = Object.values(IssueStatus);
 const PRIORITY_OPTIONS = Object.values(IssuePriority);
 
-// User type
-type User = {
-  id: string;
-  name: string | null;
-  email: string;
-};
 
 export default function NewIssuePage() {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Fetch users for the assignee dropdown
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        const response = await fetch("/api/users");
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch users");
-        }
-        
-        setUsers(data.data);
-      } catch (err) {
-        console.error("Error fetching users:", err);
-      } finally {
-        setLoadingUsers(false);
-      }
-    }
-    
-    fetchUsers();
-  }, []);
-  
-  // Initialize react-hook-form with zod validation
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<IssueCreateInput>({
     resolver: zodResolver(issueCreateSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      status: IssueStatus.NEW,
-      priority: IssuePriority.MEDIUM,
-      assignedToId: null,
-    },
   });
   
-  // Handle form submission
+  useEffect(() => {
+    // Fetch users and clients when component mounts
+    const fetchData = async () => {
+      try {
+        const [usersResponse, clientsResponse] = await Promise.all([
+          fetch("/api/users"),
+          fetch("/api/clients")
+        ]);
+
+        if (!usersResponse.ok || !clientsResponse.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const usersData = await usersResponse.json();
+        const clientsData = await clientsResponse.json();
+
+        setUsers(usersData.data);
+        setClients(clientsData.data);
+      } catch (err) {
+        setError("Failed to load form data");
+        console.error("Error fetching form data:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
   const onSubmit = async (data: IssueCreateInput) => {
-    setIsSubmitting(true);
+    setIsLoading(true);
     setError(null);
     
     try {
@@ -82,18 +72,16 @@ export default function NewIssuePage() {
         body: JSON.stringify(data),
       });
       
-      const result = await response.json();
-      
       if (!response.ok) {
-        throw new Error(result.message || "Failed to create issue");
+        throw new Error("Failed to create issue");
       }
       
-      // Redirect to the issues list page
       router.push("/issues");
-      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-      setIsSubmitting(false);
+      setError("Failed to create issue");
+      console.error("Error creating issue:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -115,6 +103,50 @@ export default function NewIssuePage() {
         )}
         
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Client */}
+          <div>
+            <label htmlFor="clientId" className="block text-sm font-medium text-gray-700 mb-1">
+              Client <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="clientId"
+              {...register("clientId")}
+              className={`w-full border ${
+                errors.clientId ? "border-red-500" : "border-gray-300"
+              } rounded px-3 py-2`}
+            >
+              <option value="">Select a client</option>
+              {clients.map((client) => (
+                <option key={client.id} value={client.id}>
+                  {client.name}
+                </option>
+              ))}
+            </select>
+            {errors.clientId && (
+              <p className="mt-1 text-sm text-red-600">{errors.clientId.message}</p>
+            )}
+          </div>
+
+          {/* Assigned To */}
+          <div>
+            <label htmlFor="assignedToId" className="block text-sm font-medium text-gray-700 mb-1">
+              Assigned To
+            </label>
+            <select
+              id="assignedToId"
+              {...register("assignedToId")}
+              className={`w-full border ${
+                errors.assignedToId ? "border-red-500" : "border-gray-300"
+              } rounded px-3 py-2`}
+            >
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
           {/* Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
@@ -199,45 +231,16 @@ export default function NewIssuePage() {
             )}
           </div>
           
-          {/* Assigned To */}
-          <div>
-            <label htmlFor="assignedToId" className="block text-sm font-medium text-gray-700 mb-1">
-              Assign To
-            </label>
-            <select
-              id="assignedToId"
-              {...register("assignedToId")}
-              className={`w-full border ${
-                errors.assignedToId ? "border-red-500" : "border-gray-300"
-              } rounded px-3 py-2`}
-              disabled={loadingUsers}
-            >
-              <option value="">Unassigned</option>
-              {loadingUsers ? (
-                <option disabled>Loading users...</option>
-              ) : (
-                users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name || user.email}
-                  </option>
-                ))
-              )}
-            </select>
-            {errors.assignedToId && (
-              <p className="mt-1 text-sm text-red-600">{errors.assignedToId.message}</p>
-            )}
-          </div>
-          
           {/* Submit Button */}
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isLoading}
               className={`px-4 py-2 rounded text-white ${
-                isSubmitting ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+                isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
-              {isSubmitting ? "Creating..." : "Create Issue"}
+              {isLoading ? "Creating..." : "Create Issue"}
             </button>
           </div>
         </form>

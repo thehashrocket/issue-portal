@@ -73,6 +73,12 @@ export async function GET(request: NextRequest) {
         createdAt: true,
         updatedAt: true,
         dueDate: true,
+        client: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         assignedTo: {
           select: {
             id: true,
@@ -148,6 +154,7 @@ export async function POST(request: NextRequest) {
         assignedToId: data.assignedToId ?? null,
         reportedById: (session as NonNullable<typeof session>).user.id,
         dueDate,
+        clientId: data.clientId,
       } satisfies Prisma.IssueUncheckedCreateInput,
       select: {
         id: true,
@@ -160,6 +167,12 @@ export async function POST(request: NextRequest) {
         createdAt: true,
         updatedAt: true,
         dueDate: true,
+        client: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         assignedTo: {
           select: {
             id: true,

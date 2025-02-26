@@ -14,6 +14,7 @@ export const issueBaseSchema = {
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
   assignedToId: z.string().uuid().optional().nullable(),
   dueDate: z.date().optional().nullable(),
+  clientId: z.string().uuid(),
 };
 
 // Schema for issue creation - all fields are required except those marked optional
