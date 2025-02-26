@@ -22,13 +22,27 @@ declare module "next-auth" {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma) as Adapter,
+  debug: true,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
     }),
   ],
   callbacks: {
+    async signIn({ account, profile }) {
+      console.log('SignIn Callback - Account:', JSON.stringify({ 
+        provider: account?.provider,
+        type: account?.type,
+        redirect_uri: account?.redirect_uri 
+      }, null, 2));
+      return true;
+    },
     async session({ 
       session, 
       user 
