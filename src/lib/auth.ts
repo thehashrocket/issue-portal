@@ -35,7 +35,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ account, profile }) {
+    async signIn({ account }) {
       console.log('SignIn Callback - Account:', JSON.stringify({ 
         provider: account?.provider,
         type: account?.type,
