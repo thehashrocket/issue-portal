@@ -77,8 +77,9 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             name: true,
-          },
+          }
         },
+        clientId: true,
         assignedTo: {
           select: {
             id: true,
@@ -171,8 +172,9 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             name: true,
-          },
+          }
         },
+        clientId: true,
         assignedTo: {
           select: {
             id: true,
