@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { clientCreateSchema } from "@/lib/validation";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { checkAuthorization } from "@/lib/auth-utils";
+import { PrismaClient } from '@prisma/client';
 
 // GET /api/clients - Get all clients
 export async function GET(request: NextRequest) {
@@ -28,16 +29,16 @@ export async function GET(request: NextRequest) {
     
     let clients;
     let totalCount;
-    const prismaAny = prisma as any;
+    const prismaTyped = prisma as PrismaClient;
     
     // If user is ADMIN, return all clients
     // If user is ACCOUNT_MANAGER, return only their clients
     if (session?.user?.role === "ADMIN") {
       // Get total count for pagination
-      totalCount = await prismaAny.client.count();
+      totalCount = await prismaTyped.client.count();
       
       // Get paginated clients
-      clients = await prismaAny.client.findMany({
+      clients = await prismaTyped.client.findMany({
         skip,
         take: validPageSize,
         select: {
@@ -66,14 +67,14 @@ export async function GET(request: NextRequest) {
     } else {
       // For ACCOUNT_MANAGER, only return clients they manage
       // Get total count for pagination
-      totalCount = await prismaAny.client.count({
+      totalCount = await prismaTyped.client.count({
         where: {
           managerId: session?.user?.id,
         },
       });
       
       // Get paginated clients
-      clients = await prismaAny.client.findMany({
+      clients = await prismaTyped.client.findMany({
         where: {
           managerId: session?.user?.id,
         },
@@ -139,10 +140,10 @@ export async function POST(request: NextRequest) {
     }
     
     const data = validationResult.data;
-    const prismaAny = prisma as any;
+    const prismaTyped = prisma as PrismaClient;
     
     // Create the client
-    const client = await prismaAny.client.create({
+    const client = await prismaTyped.client.create({
       data: {
         name: data.name,
         email: data.email,

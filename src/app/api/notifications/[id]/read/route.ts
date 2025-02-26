@@ -1,4 +1,3 @@
-import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
@@ -6,8 +5,8 @@ import { Prisma } from "@prisma/client";
 
 // PATCH /api/notifications/[id]/read - Mark a notification as read
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Authentication is handled by middleware
   const session = await auth();
@@ -18,9 +17,10 @@ export async function PATCH(
   
   try {
     // First check if the notification exists and belongs to the user
+    const { id } = await params;
     const notification = await prisma.notification.findUnique({
       where: {
-        id: params.id,
+        id,
       },
     });
     
@@ -36,7 +36,7 @@ export async function PATCH(
     // Update the notification
     const updatedNotification = await prisma.notification.update({
       where: {
-        id: params.id,
+        id,
       },
       data: {
         read: true,

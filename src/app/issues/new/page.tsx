@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { IssueStatus, IssuePriority } from "@prisma/client";
 // z is imported but not used directly in this file
 // import { z } from "zod";
 import Link from "next/link";
@@ -12,8 +13,8 @@ import Link from "next/link";
 import { issueCreateSchema, type IssueCreateInput } from "@/lib/validation";
 
 // Constants
-const STATUS_OPTIONS = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"];
-const PRIORITY_OPTIONS = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
+const STATUS_OPTIONS = Object.values(IssueStatus);
+const PRIORITY_OPTIONS = Object.values(IssuePriority);
 
 // User type
 type User = {
@@ -61,8 +62,8 @@ export default function NewIssuePage() {
     defaultValues: {
       title: "",
       description: "",
-      status: "OPEN",
-      priority: "MEDIUM",
+      status: IssueStatus.NEW,
+      priority: IssuePriority.MEDIUM,
       assignedToId: null,
     },
   });

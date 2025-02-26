@@ -6,9 +6,9 @@ import { PrismaClient } from '@prisma/client';
 
 // Define a custom type that includes the Issue and File models
 type PrismaClientWithIssue = PrismaClient & {
-  issue: any;
-  file: any;
-  notification: any;
+  issue: PrismaClient['issue'];
+  file: PrismaClient['file'];
+  notification: PrismaClient['notification'];
 };
 
 // Add issue model to the global type

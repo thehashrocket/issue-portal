@@ -1,4 +1,3 @@
-import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
@@ -14,8 +13,8 @@ const assignIssueSchema = z.object({
 
 // PATCH /api/issues/[id]/assign - Assign an issue to a developer
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Authentication is handled by middleware
   const session = await auth();
@@ -38,9 +37,10 @@ export async function PATCH(
     const { assignedToId } = validationResult.data;
     
     // First check if the issue exists
+    const { id } = await params;
     const existingIssue = await prisma.issue.findUnique({
       where: {
-        id: params.id,
+        id,
       },
     });
     
@@ -77,7 +77,7 @@ export async function PATCH(
     try {
       const updatedIssue = await prisma.issue.update({
         where: {
-          id: params.id,
+          id: id,
         },
         data: {
           assignedToId,
@@ -104,7 +104,7 @@ export async function PATCH(
       // Send notification if issue is assigned to someone
       if (assignedToId && assignedToId !== existingIssue.assignedToId) {
         await NotificationService.notifyIssueAssigned(
-          params.id,
+          id,
           assignedToId,
           updatedIssue.title
         );

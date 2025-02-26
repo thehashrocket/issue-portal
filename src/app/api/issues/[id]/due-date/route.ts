@@ -1,4 +1,3 @@
-import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
@@ -16,14 +15,14 @@ const dueDateUpdateSchema = z.object({
 
 // PATCH /api/issues/{id}/due-date - Update the due date of an issue
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Authentication is handled by middleware
   const session = await auth();
   
   // Get the issue ID from the URL params
-  const { id } = params;
+  const { id } = await params;
   
   try {
     // First, fetch the issue to check if it exists and get its data

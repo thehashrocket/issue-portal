@@ -5,6 +5,7 @@ import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { issueCreateSchema } from "@/lib/validation";
 import { isAdmin, checkAuthorization } from "@/lib/auth-utils";
 import { getDefaultDueDate } from "@/lib/date-utils";
+import { Prisma } from '@prisma/client';
 
 // GET /api/issues - Get all issues
 export async function GET(request: NextRequest) {
@@ -142,12 +143,12 @@ export async function POST(request: NextRequest) {
       data: {
         title: data.title,
         description: data.description,
-        status: data.status || "NEW",
-        priority: data.priority || "MEDIUM",
-        assignedToId: data.assignedToId,
-        reportedById: session?.user?.id, // Current user is the reporter
-        dueDate: dueDate,
-      },
+        status: data.status ?? "NEW",
+        priority: data.priority ?? "MEDIUM",
+        assignedToId: data.assignedToId ?? null,
+        reportedById: (session as NonNullable<typeof session>).user.id,
+        dueDate,
+      } satisfies Prisma.IssueUncheckedCreateInput,
       select: {
         id: true,
         title: true,
