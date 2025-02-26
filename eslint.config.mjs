@@ -14,7 +14,6 @@ const eslintConfig = [
   ...compat.extends('prettier'),
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'warn'
     }
   }
 ];

@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
-import { Prisma } from "@prisma/client";
+import { Prisma, Comment } from "@prisma/client";
 import { checkAuthorization } from "@/lib/auth-utils";
 
 // DELETE /api/comments/[id] - Delete a specific comment
@@ -24,7 +24,7 @@ export async function DELETE(
     `;
     
     // Convert the result to an array and get the first item
-    const commentArray = comments as any[];
+    const commentArray = comments as Comment[];
     if (!commentArray.length) {
       return ApiErrors.notFound("Comment");
     }

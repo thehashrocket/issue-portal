@@ -1,14 +1,15 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import ClientForm from '@/components/clients/ClientForm';
+import { useParams } from 'next/navigation';
+import { Client, ClientStatus } from '@prisma/client';
 
 export default function EditClientPage() {
   const params = useParams();
   const clientId = params.id as string;
   
-  const [initialData, setInitialData] = useState<any>(null);
+  const [initialData, setInitialData] = useState<Partial<Client> | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +23,11 @@ export default function EditClientPage() {
         }
         
         const data = await response.json();
-        setInitialData(data.data);
+        // Ensure status is properly typed as ClientStatus
+        setInitialData({
+          ...data.data,
+          status: data.data.status as ClientStatus
+        });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -51,5 +56,11 @@ export default function EditClientPage() {
     );
   }
 
-  return <ClientForm clientId={clientId} initialData={initialData} />;
+  return (
+    <>
+      {!loading && !error && initialData && (
+        <ClientForm initialData={initialData as Client} clientId={clientId} />
+      )}
+    </>
+  );
 } 

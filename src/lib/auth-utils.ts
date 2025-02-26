@@ -162,7 +162,7 @@ export function isAuthorized(
   session: Session | null,
   resourceType: ResourceType,
   action: Action,
-  resourceData: Record<string, any> = {}
+  resourceData: Record<string, unknown> = {}
 ): boolean {
   // If no session, user is not authorized
   if (!session || !session.user) {
@@ -171,7 +171,7 @@ export function isAuthorized(
 
   // Get the authorization rule for this resource and action
   // Use type assertion to avoid TypeScript error
-  type AuthRule = (session: Session | null, resourceData?: Record<string, any>) => boolean;
+  type AuthRule = (session: Session | null, resourceData?: Record<string, unknown>) => boolean;
   const rule = (authorizationRules[resourceType] as Record<Action, AuthRule>)[action];
   
   // If no rule exists, deny by default
@@ -180,7 +180,7 @@ export function isAuthorized(
   }
   
   // Apply the rule with the resource data
-  return rule(session, resourceData as any);
+  return rule(session, resourceData);
 }
 
 /**
@@ -195,7 +195,7 @@ export function checkAuthorization(
   session: Session | null,
   resourceType: ResourceType,
   action: Action,
-  resourceData: Record<string, any> = {}
+  resourceData: Record<string, unknown> = {}
 ): NextResponse | null {
   // First check if session exists
   if (!session || !session.user) {
@@ -209,4 +209,15 @@ export function checkAuthorization(
   
   // If authorized, return null (no error)
   return null;
-} 
+}
+
+// // Define specific resource data types
+// type ResourceData = {
+//   issue: IssueViewData | IssueUpdateData | IssueDeleteData;
+//   user: UserUpdateData;
+//   comment: CommentDeleteData;
+//   client: Record<string, unknown>;
+// };
+
+// // Update AuthRule type
+// type AuthRule = (session: Session | null, resourceData?: Record<string, unknown>) => boolean; 

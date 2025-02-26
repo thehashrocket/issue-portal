@@ -1,4 +1,3 @@
-import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
@@ -25,17 +24,18 @@ type CommentWithUser = {
 
 // GET /api/issues/[id]/comments - Get all comments for an issue
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Authentication is handled by middleware
   const session = await auth();
   
   try {
     // First check if the issue exists
+    const { id } = await params;
     const issue = await prisma.issue.findUnique({
       where: {
-        id: params.id,
+        id,
       },
     });
     
@@ -63,7 +63,7 @@ export async function GET(
           ) as "createdBy"
         FROM "Comment" c
         JOIN "User" u ON c."createdById" = u.id
-        WHERE c."issueId" = ${params.id}
+        WHERE c."issueId" = ${id}
         ORDER BY c."createdAt" DESC
       `;
       return result as CommentWithUser[];
@@ -78,8 +78,8 @@ export async function GET(
 
 // POST /api/issues/[id]/comments - Create a new comment for an issue
 export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Authentication is handled by middleware
   const session = await auth();
@@ -101,9 +101,10 @@ export async function POST(
     const data = validationResult.data;
     
     // First check if the issue exists
+    const { id } = await params;
     const issue = await prisma.issue.findUnique({
       where: {
-        id: params.id,
+        id,
       },
       include: {
         assignedTo: {
@@ -142,7 +143,7 @@ export async function POST(
           ${commentId}, 
           ${data.text}, 
           ${session.user.id}, 
-          ${params.id}, 
+          ${id}, 
           ${new Date()}, 
           ${new Date()}
         )
@@ -173,7 +174,7 @@ export async function POST(
     // Notify the assignee if they're not the one who commented
     if (issue.assignedToId && issue.assignedToId !== session.user.id) {
       await NotificationService.notifyCommentAdded(
-        params.id,
+        id,
         issue.title,
         currentUserName,
         issue.assignedToId
@@ -183,7 +184,7 @@ export async function POST(
     // Notify the reporter if they're not the one who commented
     if (issue.reportedById !== session.user.id) {
       await NotificationService.notifyCommentAdded(
-        params.id,
+        id,
         issue.title,
         currentUserName,
         issue.reportedById

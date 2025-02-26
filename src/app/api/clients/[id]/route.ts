@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { clientUpdateSchema } from "@/lib/validation";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { checkAuthorization } from "@/lib/auth-utils";
+import { PrismaClient } from '@prisma/client';
 
 // GET /api/clients/[id] - Get a specific client
 export async function GET(
@@ -17,10 +18,10 @@ export async function GET(
   
   try {
     const { id } = await params;
-    const prismaAny = prisma as any;
+    const prismaTyped = prisma as PrismaClient;
     
     // Find the client
-    const client = await prismaAny.client.findUnique({
+    const client = await prismaTyped.client.findUnique({
       where: { id },
       include: {
         manager: {
@@ -66,7 +67,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const prismaAny = prisma as any;
+    const prismaTyped = prisma as PrismaClient;
     
     // Validate request body
     const validationResult = clientUpdateSchema.safeParse(body);
@@ -76,7 +77,7 @@ export async function PUT(
     }
     
     // Check if client exists and user has permission
-    const existingClient = await prismaAny.client.findUnique({
+    const existingClient = await prismaTyped.client.findUnique({
       where: { id },
     });
     
@@ -95,7 +96,7 @@ export async function PUT(
     const data = validationResult.data;
     
     // Update the client
-    const updatedClient = await prismaAny.client.update({
+    const updatedClient = await prismaTyped.client.update({
       where: { id },
       data: {
         name: data.name,
@@ -141,10 +142,10 @@ export async function DELETE(
   
   try {
     const { id } = await params;
-    const prismaAny = prisma as any;
+    const prismaTyped = prisma as PrismaClient;
     
     // Check if client exists and user has permission
-    const existingClient = await prismaAny.client.findUnique({
+    const existingClient = await prismaTyped.client.findUnique({
       where: { id },
     });
     
@@ -161,7 +162,7 @@ export async function DELETE(
     }
     
     // Soft delete the client by setting status to INACTIVE
-    await prismaAny.client.update({
+    await prismaTyped.client.update({
       where: { id },
       data: {
         status: "INACTIVE",
@@ -189,7 +190,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const prismaAny = prisma as any;
+    const prismaTyped = prisma as PrismaClient;
     
     // Validate request body
     const validationResult = clientUpdateSchema.safeParse(body);
@@ -199,7 +200,7 @@ export async function PATCH(
     }
     
     // Check if client exists and user has permission
-    const existingClient = await prismaAny.client.findUnique({
+    const existingClient = await prismaTyped.client.findUnique({
       where: { id },
     });
     
@@ -223,10 +224,10 @@ export async function PATCH(
         acc[key] = value;
       }
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, unknown>);
     
     // Update the client
-    const updatedClient = await prismaAny.client.update({
+    const updatedClient = await prismaTyped.client.update({
       where: { id },
       data: updateData,
       include: {

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
+import { Prisma } from '@prisma/client';
 // checkAuthorization is defined but never used
 // import { checkAuthorization } from "@/lib/auth-utils";
 
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
     
     // Build filter conditions
-    const where: any = {
+    const where: Prisma.NotificationWhereInput = {
       userId: session.user.id,
     };
     

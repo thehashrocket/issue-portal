@@ -1,4 +1,3 @@
-import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
@@ -24,8 +23,8 @@ const statusUpdateSchema = z.object({
 
 // PATCH /api/issues/[id]/status - Update issue status
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Authentication is handled by middleware
   const session = await auth();
@@ -43,9 +42,10 @@ export async function PATCH(
     const { status: newStatus } = validationResult.data;
     
     // First check if the issue exists
+    const { id } = await params;
     const existingIssue = await prisma.issue.findUnique({
       where: {
-        id: params.id,
+        id,
       },
       include: {
         assignedTo: true,
@@ -76,7 +76,7 @@ export async function PATCH(
     try {
       const updatedIssue = await prisma.issue.update({
         where: {
-          id: params.id,
+          id,
         },
         data: {
           status: newStatus,
@@ -104,7 +104,7 @@ export async function PATCH(
       // Notify the assignee if there is one
       if (updatedIssue.assignedToId && session?.user?.id && updatedIssue.assignedToId !== session.user.id) {
         await NotificationService.notifyStatusChanged(
-          params.id,
+          id,
           updatedIssue.title,
           newStatus,
           updatedIssue.assignedToId
@@ -114,7 +114,7 @@ export async function PATCH(
       // Notify the reporter if they're not the one who changed the status
       if (updatedIssue.reportedById && session?.user?.id && updatedIssue.reportedById !== session.user.id) {
         await NotificationService.notifyStatusChanged(
-          params.id,
+          id,
           updatedIssue.title,
           newStatus,
           updatedIssue.reportedById

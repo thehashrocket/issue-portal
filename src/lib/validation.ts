@@ -30,7 +30,7 @@ export const issueUpdateSchema = z.object({
     // Make all fields optional
     acc[key] = validator.optional();
     return acc;
-  }, {} as Record<string, z.ZodType<any>>),
+  }, {} as Record<string, z.ZodTypeAny>),
 });
 
 // Types derived from the issue schemas
@@ -65,7 +65,7 @@ export const clientUpdateSchema = z.object({
     // Make all fields optional
     acc[key] = validator.optional();
     return acc;
-  }, {} as Record<string, z.ZodType<any>>),
+  }, {} as Record<string, z.ZodTypeAny>),
 });
 
 // Types derived from the client schemas
@@ -96,7 +96,7 @@ export const userUpdateSchema = z.object({
     // Make all fields optional
     acc[key] = validator.optional();
     return acc;
-  }, {} as Record<string, z.ZodType<any>>),
+  }, {} as Record<string, z.ZodTypeAny>),
 });
 
 // Types derived from the user schemas
