@@ -141,11 +141,11 @@ export default function NotificationsPage() {
       {isLoading ? (
         <div className="text-center py-8">Loading notifications...</div>
       ) : notifications.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-6 text-center">
+        <div className="bg-white rounded-lg shadow-sm p-6 text-center">
           <p className="text-gray-500">No notifications found</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <ul className="divide-y divide-gray-200">
             {notifications.map((notification) => (
               <li key={notification.id} className="p-4 hover:bg-gray-50">

@@ -26,7 +26,7 @@ export default function Comments({ issueId }: CommentsProps) {
             onCommentAdded={handleCommentChange} 
           />
         ) : (
-          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded mb-6">
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-sm mb-6">
             <p>Please sign in to add comments.</p>
           </div>
         )}

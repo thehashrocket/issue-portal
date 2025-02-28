@@ -84,7 +84,7 @@ export default function NotificationBell() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        className="relative p-1 text-gray-600 hover:text-gray-800 focus:outline-none"
+        className="relative p-1 text-gray-600 hover:text-gray-800 focus:outline-hidden"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Notifications"
       >

@@ -93,11 +93,11 @@ export default function NewIssuePage() {
         </Link>
       </div>
       
-      <div className="bg-white p-6 rounded shadow">
+      <div className="bg-white p-6 rounded-sm shadow-sm">
         <h1 className="text-2xl font-bold mb-6">Create New Issue</h1>
         
         {error && (
-          <div className="bg-red-100 text-red-700 p-4 rounded mb-6">
+          <div className="bg-red-100 text-red-700 p-4 rounded-sm mb-6">
             <p>{error}</p>
           </div>
         )}

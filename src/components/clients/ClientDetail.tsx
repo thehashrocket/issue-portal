@@ -90,11 +90,11 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-sm">
           <p>Error: {error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+            className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-sm"
           >
             Retry
           </button>
@@ -106,11 +106,11 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
   if (!client) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-sm">
           <p>Client not found</p>
           <Link 
             href="/clients" 
-            className="mt-2 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
+            className="mt-2 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded-sm"
           >
             Back to Clients
           </Link>
@@ -131,14 +131,14 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
         <div className="flex space-x-3">
           <Link 
             href="/clients" 
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-xs text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Back to Clients
           </Link>
           {canEditClients && (
             <Link 
               href={`/clients/${clientId}/edit`} 
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-transparent rounded-md shadow-xs text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Edit Client
             </Link>
@@ -146,7 +146,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
         </div>
       </div>
 
-      <div className="bg-white shadow rounded-lg overflow-hidden">
+      <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="px-4 py-5 sm:px-6 bg-gray-50">
           <h3 className="text-lg leading-6 font-medium text-gray-900">Client Information</h3>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">Details and contact information.</p>

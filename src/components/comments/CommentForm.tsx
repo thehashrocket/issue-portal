@@ -57,11 +57,11 @@ export default function CommentForm({ issueId, onCommentAdded }: CommentFormProp
   };
   
   return (
-    <div className="bg-white rounded shadow p-4 mb-6">
+    <div className="bg-white rounded-sm shadow-sm p-4 mb-6">
       <h2 className="text-xl font-semibold mb-4">Add a Comment</h2>
       
       {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+        <div className="bg-red-100 text-red-700 p-3 rounded-sm mb-4">
           <p>{error}</p>
         </div>
       )}
@@ -76,7 +76,7 @@ export default function CommentForm({ issueId, onCommentAdded }: CommentFormProp
             rows={4}
             className={`w-full px-3 py-2 border rounded-md ${
               errors.text ? "border-red-500" : "border-gray-300"
-            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             placeholder="Enter your comment here..."
             {...register("text")}
             disabled={isSubmitting}
@@ -90,7 +90,7 @@ export default function CommentForm({ issueId, onCommentAdded }: CommentFormProp
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-sm disabled:opacity-50"
           >
             {isSubmitting ? (
               <>

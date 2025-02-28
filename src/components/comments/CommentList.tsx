@@ -102,7 +102,7 @@ export default function CommentList({ issueId, onCommentDeleted }: CommentListPr
 
   if (error) {
     return (
-      <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
+      <div className="bg-red-100 text-red-700 p-4 rounded-sm mb-4">
         <p>{error}</p>
       </div>
     );
@@ -117,7 +117,7 @@ export default function CommentList({ issueId, onCommentDeleted }: CommentListPr
       ) : (
         <div className="space-y-4">
           {comments.map((comment) => (
-            <div key={comment.id} className="bg-gray-50 p-4 rounded shadow-sm">
+            <div key={comment.id} className="bg-gray-50 p-4 rounded-sm shadow-xs">
               <div className="flex justify-between items-start">
                 <div className="flex items-center space-x-2">
                   {comment.createdBy.image ? (

@@ -132,11 +132,11 @@ export default function ClientList() {
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-sm">
           <p>Error: {error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+            className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-sm"
           >
             Retry
           </button>
@@ -150,19 +150,19 @@ export default function ClientList() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Clients</h1>
         {canEditClients && (
-          <Link href="/clients/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          <Link href="/clients/new" className="bg-blue-600 text-white px-4 py-2 rounded-sm hover:bg-blue-700">
             New Client
           </Link>
         )}
       </div>
 
       {clients.length === 0 ? (
-        <div className="bg-white shadow rounded-lg p-6 text-center">
+        <div className="bg-white shadow-sm rounded-lg p-6 text-center">
           <p className="text-gray-500">No clients found.</p>
           {canEditClients && (
             <Link 
               href="/clients/new" 
-              className="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              className="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-sm"
             >
               Add Your First Client
             </Link>
@@ -170,7 +170,7 @@ export default function ClientList() {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto bg-white shadow rounded-lg">
+          <div className="overflow-x-auto bg-white shadow-sm rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>

@@ -182,13 +182,13 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
       </div>
       
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-sm mb-4">
           <p>{error}</p>
         </div>
       )}
       
       {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-sm mb-4">
           <p>{success}</p>
         </div>
       )}
@@ -206,7 +206,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               name="name"
               value={formData.name || ''}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 ${
                 validationErrors.name ? 'border-red-500' : 'border-gray-300'
               }`}
               required
@@ -229,7 +229,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               name="email"
               value={formData.email || ''}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 ${
                 validationErrors.email ? 'border-red-500' : 'border-gray-300'
               }`}
               aria-invalid={!!validationErrors.email}
@@ -251,7 +251,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               name="phone"
               value={formData.phone || ''}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 ${
                 validationErrors.phone ? 'border-red-500' : 'border-gray-300'
               }`}
               aria-invalid={!!validationErrors.phone}
@@ -273,7 +273,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               name="address"
               value={formData.address || ''}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           
@@ -289,7 +289,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               value={formData.website || ''}
               onChange={handleChange}
               placeholder="https://example.com"
-              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 ${
                 validationErrors.website ? 'border-red-500' : 'border-gray-300'
               }`}
               aria-invalid={!!validationErrors.website}
@@ -311,7 +311,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               name="primaryContact"
               value={formData.primaryContact || ''}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           
@@ -325,7 +325,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               name="status"
               value={formData.status || ClientStatus.ACTIVE}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
             >
               <option value={ClientStatus.ACTIVE}>Active</option>
               <option value={ClientStatus.INACTIVE}>Inactive</option>
@@ -344,7 +344,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               name="managerId"
               value={formData.managerId || ''}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Select Account Manager</option>
               {session?.user?.role === 'ADMIN' ? (
@@ -372,7 +372,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               name="sla"
               value={formData.sla || ''}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           
@@ -387,7 +387,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               value={formData.description || ''}
               onChange={handleChange}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           
@@ -402,7 +402,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
               value={formData.notes || ''}
               onChange={handleChange}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
@@ -410,14 +410,14 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
         <div className="mt-8 flex justify-end space-x-3">
           <Link
             href={isEditMode ? `/clients/${clientId}` : '/clients'}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-xs text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            className="px-4 py-2 border border-transparent rounded-md shadow-xs text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
           >
             {loading ? (
               <span className="flex items-center">

@@ -108,16 +108,16 @@ export default function IssueDetailClient({ id }: IssueDetailClientProps) {
           <p className="mt-2">Loading issue...</p>
         </div>
       ) : error ? (
-        <div className="bg-red-100 text-red-700 p-4 rounded">
+        <div className="bg-red-100 text-red-700 p-4 rounded-sm">
           <p>{error}</p>
         </div>
       ) : !issue ? (
-        <div className="bg-red-100 text-red-700 p-4 rounded">
+        <div className="bg-red-100 text-red-700 p-4 rounded-sm">
           <p>Issue not found</p>
         </div>
       ) : (
         <>
-          <div className="bg-white rounded shadow p-6 mb-6">
+          <div className="bg-white rounded-sm shadow-sm p-6 mb-6">
             <div className="flex justify-between items-start mb-6">
               <h1 className="text-2xl font-bold">{issue.title}</h1>
               <div className="flex space-x-2">
@@ -166,7 +166,7 @@ export default function IssueDetailClient({ id }: IssueDetailClientProps) {
             {/* <div className="flex justify-end">
               <Link
                 href={`/issues/${issue.id}/edit`}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-sm"
               >
                 Edit Issue
               </Link>
