@@ -1,8 +1,19 @@
-@import 'tailwindcss';
+@import '@tailwindcss/postcss';
 
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+}
+
+@tailwind {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ];
+  theme: {
+    extend: {};
+  };
 }
 
 /*
