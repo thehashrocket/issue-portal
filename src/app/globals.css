@@ -1,4 +1,4 @@
-@import '@tailwindcss/postcss';
+@import '@tailwindcss';
 
 @theme {
   --color-background: var(--background);
