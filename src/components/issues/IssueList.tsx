@@ -38,8 +38,6 @@ ModuleRegistry.registerModules([
 
 // Constants
 const ITEMS_PER_PAGE = 10;
-const STATUS_OPTIONS = Object.values(IssueStatus);
-const PRIORITY_OPTIONS = Object.values(IssuePriority);
 
 // Extended Issue type to include user relations
 type ExtendedIssue = PrismaIssue & {
@@ -64,11 +62,6 @@ export default function IssueList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRows, setTotalRows] = useState(0);
-  
-  // Filter state
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [priorityFilter, setPriorityFilter] = useState<string>('');
-  const [assignedToFilter, setAssignedToFilter] = useState<string>('');
 
   // Fetch issues data
   useEffect(() => {
@@ -78,9 +71,6 @@ export default function IssueList() {
     const assignedToId = searchParams.get('assignedToId') || '';
     
     setCurrentPage(page);
-    setStatusFilter(status);
-    setPriorityFilter(priority);
-    setAssignedToFilter(assignedToId);
     
     async function fetchIssues() {
       setLoading(true);
@@ -117,18 +107,6 @@ export default function IssueList() {
     
     fetchIssues();
   }, [searchParams]);
-
-  // Apply filters and navigate
-  const applyFilters = useCallback((status: string, priority: string, assignedToId: string) => {
-    const params = new URLSearchParams();
-    params.append('page', '1'); // Reset to first page when filters change
-    
-    if (status) params.append('status', status);
-    if (priority) params.append('priority', priority);
-    if (assignedToId) params.append('assignedToId', assignedToId);
-    
-    router.push(`/issues?${params.toString()}`);
-  }, [router]);
 
   // Handle page change
   const handlePageChange = (page: number) => {
@@ -405,82 +383,6 @@ export default function IssueList() {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {/* Filter Controls */}
-          <div className="bg-white p-4 rounded shadow-sm">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  value={statusFilter}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
-                  onChange={(e) => {
-                    const status = e.target.value;
-                    applyFilters(status, priorityFilter, assignedToFilter);
-                  }}
-                >
-                  <option value="">All Statuses</option>
-                  {STATUS_OPTIONS.map((status) => (
-                    <option key={status} value={status}>
-                      {status.replace('_', ' ')}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                <select
-                  value={priorityFilter}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
-                  onChange={(e) => {
-                    const priority = e.target.value;
-                    applyFilters(statusFilter, priority, assignedToFilter);
-                  }}
-                >
-                  <option value="">All Priorities</option>
-                  {PRIORITY_OPTIONS.map((priority) => (
-                    <option key={priority} value={priority}>
-                      {priority}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
-                <select
-                  value={assignedToFilter}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
-                  onChange={(e) => {
-                    const assignedToId = e.target.value;
-                    applyFilters(statusFilter, priorityFilter, assignedToId);
-                  }}
-                >
-                  <option value="">All Assignees</option>
-                  {/* This would need to be populated with users */}
-                </select>
-              </div>
-            </div>
-            
-            {(statusFilter || priorityFilter || assignedToFilter) && (
-              <div className="flex justify-end mt-4">
-                <button
-                  className="text-blue-600 hover:text-blue-800 px-3 py-2 flex items-center transition-colors"
-                  onClick={() => {
-                    setStatusFilter('');
-                    setPriorityFilter('');
-                    setAssignedToFilter('');
-                    applyFilters('', '', '');
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  Clear Filters
-                </button>
-              </div>
-            )}
-          </div>
           
           {/* Loading overlay */}
           {loading && (
