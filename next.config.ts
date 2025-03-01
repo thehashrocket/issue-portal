@@ -5,8 +5,6 @@ const nextConfig: NextConfig = {
     domains: ['lh3.googleusercontent.com'],
   },
   experimental: {
-    // Enable any experimental features that might help with Tailwind CSS v4
-    serverComponentsExternalPackages: ['tailwindcss', '@tailwindcss/postcss'],
   },
 };
 
