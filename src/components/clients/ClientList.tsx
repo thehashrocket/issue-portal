@@ -116,7 +116,7 @@ export default function ClientList() {
   };
 
   // Status badge component for ag-Grid cell renderer
-  const StatusBadgeRenderer = (params: ICellRendererParams) => {
+  const StatusBadgeRenderer = useCallback((params: ICellRendererParams) => {
     const status = params.value as ClientStatus;
     
     const getStatusColor = () => {
@@ -141,10 +141,10 @@ export default function ClientList() {
         </span>
       </div>
     );
-  };
+  }, []);
 
   // Actions cell renderer
-  const ActionsRenderer = (params: ICellRendererParams) => {
+  const ActionsRenderer = useCallback((params: ICellRendererParams) => {
     const clientId = params.data.id;
     
     return (
@@ -165,36 +165,36 @@ export default function ClientList() {
         )}
       </div>
     );
-  };
+  }, [canEditClients]);
 
   // Manager cell renderer
-  const ManagerRenderer = (params: ICellRendererParams) => {
+  const ManagerRenderer = useCallback((params: ICellRendererParams) => {
     const manager = params.data.manager;
     return (
       <div className="flex items-center h-full">
         {manager ? (manager.name || manager.email) : 'Unassigned'}
       </div>
     );
-  };
+  }, []);
 
   // Contact cell renderer
-  const ContactRenderer = (params: ICellRendererParams) => {
+  const ContactRenderer = useCallback((params: ICellRendererParams) => {
     return (
       <div className="flex flex-col justify-center h-full">
         <div>{params.data.email || 'N/A'} {params.data.phone || 'N/A'}</div>
       </div>
     );
-  };
+  }, []);
 
   // Date cell renderer
-  const DateCellRenderer = (params: ICellRendererParams) => {
+  const DateCellRenderer = useCallback((params: ICellRendererParams) => {
     const date = params.value ? new Date(params.value).toLocaleDateString() : '';
     return (
       <div className="flex items-center h-full">
         {date}
       </div>
     );
-  };
+  }, []);
 
   // Define column definitions
   const columnDefs = useMemo<ColDef[]>(() => [
@@ -245,7 +245,7 @@ export default function ClientList() {
       sortable: false,
       filter: false
     }
-  ], [canEditClients]);
+  ], [StatusBadgeRenderer, ContactRenderer, ManagerRenderer, DateCellRenderer, ActionsRenderer]);
 
   // Default column definitions
   const defaultColDef = useMemo(() => ({

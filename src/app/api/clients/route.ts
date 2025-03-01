@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { clientCreateSchema } from "@/lib/validation";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { checkAuthorization } from "@/lib/auth-utils";
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma, ClientStatus } from '@prisma/client';
 
 // GET /api/clients - Get all clients
 export async function GET(request: NextRequest) {
@@ -32,11 +32,11 @@ export async function GET(request: NextRequest) {
     const skip = (validPage - 1) * validPageSize;
     
     // Build where clause for filtering
-    const whereClause: any = {};
+    const whereClause: Prisma.ClientWhereInput = {};
     
     // Add status filter if provided
     if (statusFilter) {
-      whereClause.status = statusFilter;
+      whereClause.status = statusFilter as ClientStatus;
     }
     
     // Add search term filter if provided
@@ -53,17 +53,15 @@ export async function GET(request: NextRequest) {
       whereClause.managerId = session?.user?.id;
     }
     
-    let clients;
-    let totalCount;
     const prismaTyped = prisma as PrismaClient;
     
     // Get total count for pagination with filters applied
-    totalCount = await prismaTyped.client.count({
+    const totalCount = await prismaTyped.client.count({
       where: whereClause,
     });
     
     // Get paginated clients with filters applied
-    clients = await prismaTyped.client.findMany({
+    const clients = await prismaTyped.client.findMany({
       where: whereClause,
       skip,
       take: validPageSize,

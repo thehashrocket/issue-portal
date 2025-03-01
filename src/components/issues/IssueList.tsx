@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import { IssueStatus, IssuePriority, Issue as PrismaIssue, User } from '@prisma/client';
 import { AgGridReact } from 'ag-grid-react';
 import { 
@@ -53,7 +52,6 @@ type ExtendedIssue = PrismaIssue & {
 };
 
 export default function IssueList() {
-  const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   
