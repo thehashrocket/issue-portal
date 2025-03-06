@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
   
   try {
     const searchParams = request.nextUrl.searchParams;
-    const unreadOnly = searchParams.get("unreadOnly") === "true";
     
     // Pagination parameters
     const page = Number(searchParams.get("page") || "1");

@@ -73,7 +73,10 @@ export async function PUT(
     const validationResult = clientUpdateSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return ApiErrors.validationFailed(validationResult.error.format());
+      return ApiErrors.unprocessableEntity(
+        "Validation failed",
+        validationResult.error.format()
+      );
     }
     
     // Check if client exists and user has permission
@@ -196,7 +199,10 @@ export async function PATCH(
     const validationResult = clientUpdateSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return ApiErrors.validationFailed(validationResult.error.format());
+      return ApiErrors.unprocessableEntity(
+        "Validation failed",
+        validationResult.error.format()
+      );
     }
     
     // Check if client exists and user has permission

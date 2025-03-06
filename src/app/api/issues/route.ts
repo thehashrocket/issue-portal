@@ -139,7 +139,10 @@ export async function POST(request: NextRequest) {
     const validationResult = issueCreateSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return ApiErrors.validationFailed(validationResult.error.format());
+      return ApiErrors.unprocessableEntity(
+        "Validation failed",
+        validationResult.error.format()
+      );
     }
     
     const data = validationResult.data;

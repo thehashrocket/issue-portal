@@ -57,7 +57,10 @@ export async function PATCH(
     const validationResult = dueDateUpdateSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return ApiErrors.validationFailed(validationResult.error.format());
+      return ApiErrors.unprocessableEntity(
+        "Validation failed",
+        validationResult.error.format()
+      );
     }
     
     const { dueDate } = validationResult.data;

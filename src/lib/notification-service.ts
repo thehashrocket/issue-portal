@@ -91,7 +91,7 @@ export const NotificationService = {
   /**
    * Get notifications for a user
    */
-  getUserNotifications: async (userId: string, includeRead: boolean = false) => {
+  getUserNotifications: async (userId: string) => {
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 

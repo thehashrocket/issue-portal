@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { NotificationService } from "@/lib/notification-service";
 import { NotificationType } from "@prisma/client";

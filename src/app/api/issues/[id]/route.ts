@@ -76,7 +76,10 @@ export async function PUT(
     const validationResult = issueUpdateSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return ApiErrors.validationFailed(validationResult.error.format());
+      return ApiErrors.unprocessableEntity(
+        "Validation failed",
+        validationResult.error.format()
+      );
     }
     
     const data = validationResult.data;
@@ -235,7 +238,10 @@ export async function PATCH(
     const validationResult = issueAssignmentSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return ApiErrors.validationFailed(validationResult.error.format());
+      return ApiErrors.unprocessableEntity(
+        "Validation failed",
+        validationResult.error.format()
+      );
     }
     
     const data = validationResult.data;

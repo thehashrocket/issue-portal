@@ -95,7 +95,10 @@ export async function POST(
     const validationResult = commentCreateSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return ApiErrors.validationFailed(validationResult.error.format());
+      return ApiErrors.unprocessableEntity(
+        "Validation failed",
+        validationResult.error.format()
+      );
     }
     
     const data = validationResult.data;

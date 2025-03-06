@@ -72,7 +72,7 @@ export const ApiErrors = {
   /**
    * 401 Unauthorized - Authentication required
    */
-  unauthorized: (message: string = "Unauthorized: Authentication required", code?: string) => 
+  unauthorized: (message: string = "Unauthorized: Authentication required") => 
     NextResponse.json({
       success: false,
       message: message || 'Unauthorized'
@@ -81,13 +81,13 @@ export const ApiErrors = {
   /**
    * 403 Forbidden - Insufficient permissions
    */
-  forbidden: (message: string = "Forbidden: Insufficient permissions", code?: string) => 
-    createErrorResponse(message, 403, undefined, code),
+  forbidden: (message: string = "Forbidden: Insufficient permissions") => 
+    createErrorResponse(message, 403),
   
   /**
    * 404 Not Found - Resource not found
    */
-  notFound: (message: string = "Not found", code?: string) => 
+  notFound: (message: string = "Not found") => 
     NextResponse.json({
       success: false,
       message
@@ -96,13 +96,13 @@ export const ApiErrors = {
   /**
    * 400 Bad Request - Validation failed
    */
-  validationFailed: (details: unknown, message: string = "Validation failed", code?: string) => 
-    createErrorResponse(message, 400, details, code),
+  validationFailed: (message: string = "Validation failed") => 
+    createErrorResponse(message, 400),
   
   /**
    * 400 Bad Request - Generic bad request
    */
-  badRequest: (message: string = "Bad request", details?: unknown, code?: string) => 
+  badRequest: (message: string = "Bad request") => 
     NextResponse.json({
       success: false,
       message
@@ -111,7 +111,7 @@ export const ApiErrors = {
   /**
    * 500 Internal Server Error - Unexpected error
    */
-  serverError: (message: string = "Internal server error", code?: string) => 
+  serverError: (message: string = "Internal server error") => 
     NextResponse.json({
       success: false,
       message

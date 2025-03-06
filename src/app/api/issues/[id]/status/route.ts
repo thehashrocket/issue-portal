@@ -35,7 +35,10 @@ export async function PATCH(
     const validationResult = statusUpdateSchema.safeParse(body);
     
     if (!validationResult.success) {
-      return ApiErrors.validationFailed(validationResult.error.format());
+      return ApiErrors.unprocessableEntity(
+        "Validation failed",
+        validationResult.error.format()
+      );
     }
     
     const { status: newStatus } = validationResult.data;
