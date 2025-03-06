@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Client, ClientStatus } from '@prisma/client';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 
 // Define the User type for account managers
 type User = {
@@ -154,7 +155,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
       }
       
       await response.json();
-      
+      toast.success(isEditMode ? 'Client updated successfully' : 'Client created successfully');
       setSuccess(isEditMode ? 'Client updated successfully' : 'Client created successfully');
       
       // Redirect after a short delay
@@ -162,6 +163,7 @@ export default function ClientForm({ clientId, initialData }: ClientFormProps) {
         router.push(isEditMode ? `/clients/${clientId}` : '/clients');
       }, 1500);
     } catch (err) {
+      toast.error('Failed to save client');
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);

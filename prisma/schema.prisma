@@ -8,22 +8,22 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  name          String?
-  email         String    @unique
-  role          Role      @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  clients       Client[]
-  sessions      Session[]
-  assignedIssues Issue[]   @relation("AssignedIssues")
-  reportedIssues Issue[]   @relation("ReportedIssues")
-  uploadedFiles File[]     @relation("UploadedFiles")
-  comments      Comment[]
-  notifications Notification[]
+  id             String         @id @default(uuid())
+  name           String?
+  email          String         @unique
+  role           Role           @default(USER)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  emailVerified  DateTime?
+  image          String?
+  accounts       Account[]
+  clients        Client[]
+  sessions       Session[]
+  assignedIssues Issue[]        @relation("AssignedIssues")
+  reportedIssues Issue[]        @relation("ReportedIssues")
+  uploadedFiles  File[]         @relation("UploadedFiles")
+  comments       Comment[]
+  notifications  Notification[]
 }
 
 model Account {
@@ -61,22 +61,23 @@ model VerificationToken {
 }
 
 model Client {
-  id              String       @id @default(uuid())
-  name            String
-  email           String?
-  phone           String?
-  address         String?
-  website         String?
-  description     String?
-  primaryContact  String?
-  sla             String?
-  notes           String?
-  status          ClientStatus @default(ACTIVE)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  managerId       String?
-  manager         User?        @relation(fields: [managerId], references: [id])
-  issues          Issue[]      @relation("ClientIssues")
+  id             String       @id @default(uuid())
+  name           String
+  email          String?
+  phone          String?
+  address        String?
+  website        String?
+  description    String?
+  primaryContact String?
+  sla            String?
+  notes          String?
+  status         ClientStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  managerId      String?
+  manager        User?        @relation(fields: [managerId], references: [id])
+  issues         Issue[]      @relation("ClientIssues")
+  domainNames    DomainName[] @relation("ClientDomainNames")
 
   @@index([managerId])
   @@index([status])
@@ -85,23 +86,35 @@ model Client {
   @@index([name])
 }
 
+model DomainName {
+  id               String        @id @default(uuid())
+  name             String
+  hostingProvider  String?
+  domainExpiration DateTime?
+  domainStatus     DomainStatus?
+  clientId         String
+  client           Client        @relation("ClientDomainNames", fields: [clientId], references: [id])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
 model Issue {
-  id          String        @id @default(uuid())
-  title       String
-  description String?
-  status      IssueStatus   @default(NEW)
-  priority    IssuePriority @default(MEDIUM)
-  assignedTo  User?         @relation("AssignedIssues", fields: [assignedToId], references: [id])
-  assignedToId String?
-  reportedBy  User          @relation("ReportedIssues", fields: [reportedById], references: [id])
-  reportedById String
-  client      Client        @relation("ClientIssues", fields: [clientId], references: [id])
-  clientId    String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  dueDate     DateTime?
-  files       File[]
-  comments    Comment[]
+  id            String         @id @default(uuid())
+  title         String
+  description   String?
+  status        IssueStatus    @default(NEW)
+  priority      IssuePriority  @default(MEDIUM)
+  assignedTo    User?          @relation("AssignedIssues", fields: [assignedToId], references: [id])
+  assignedToId  String?
+  reportedBy    User           @relation("ReportedIssues", fields: [reportedById], references: [id])
+  reportedById  String
+  client        Client         @relation("ClientIssues", fields: [clientId], references: [id])
+  clientId      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  dueDate       DateTime?
+  files         File[]
+  comments      Comment[]
   notifications Notification[]
 
   @@index([assignedToId])
@@ -114,33 +127,33 @@ model Issue {
 }
 
 model File {
-  id          String    @id @default(uuid())
-  filename    String
+  id           String   @id @default(uuid())
+  filename     String
   originalName String
-  mimeType    String
-  size        Int
-  key         String    @unique
-  url         String
-  uploadedBy  User      @relation("UploadedFiles", fields: [uploadedById], references: [id])
+  mimeType     String
+  size         Int
+  key          String   @unique
+  url          String
+  uploadedBy   User     @relation("UploadedFiles", fields: [uploadedById], references: [id])
   uploadedById String
-  issueId     String?
-  issue       Issue?    @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  issueId      String?
+  issue        Issue?   @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([uploadedById])
   @@index([issueId])
 }
 
 model Comment {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   text        String
-  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdBy   User     @relation(fields: [createdById], references: [id])
   createdById String
-  issue       Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issue       Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
   issueId     String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([createdById])
   @@index([issueId])
@@ -161,18 +174,24 @@ model Notification {
   @@index([issueId])
 }
 
-enum Role {
-  USER
-  ADMIN
-  ACCOUNT_MANAGER
-  DEVELOPER
-}
-
 enum ClientStatus {
   ACTIVE
   INACTIVE
   LEAD
   FORMER
+}
+
+enum DomainStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
 enum IssueStatus {
@@ -186,15 +205,15 @@ enum IssueStatus {
   WONT_FIX
 }
 
-enum IssuePriority {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
-
 enum NotificationType {
   ISSUE_ASSIGNED
   COMMENT_ADDED
   STATUS_CHANGED
+}
+
+enum Role {
+  USER
+  ADMIN
+  ACCOUNT_MANAGER
+  DEVELOPER
 }

@@ -1,15 +1,7 @@
 /**
  * Type for issue statuses
  */
-export type IssueStatus = 
-  | "NEW" 
-  | "ASSIGNED" 
-  | "IN_PROGRESS" 
-  | "PENDING" 
-  | "NEEDS_REVIEW" 
-  | "FIXED" 
-  | "CLOSED" 
-  | "WONT_FIX";
+import { IssueStatus } from "@prisma/client";
 
 /**
  * Defines the allowed status transitions for issues

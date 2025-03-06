@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { ClientStatus, Client as PrismaClient, User } from '@prisma/client';
+import { ClientStatus, Client as PrismaClient, User, DomainName } from '@prisma/client';
+import { DomainNameList } from '../domain_names/DomainNameList';
 
-// Extended Client type to include manager relation
+// Extended Client type to include manager relation and domainNames
 type Client = PrismaClient & {
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
+  domainNames: DomainName[];
 };
 
 interface ClientDetailProps {
@@ -47,6 +49,36 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
     
     fetchClient();
   }, [clientId]);
+
+  // Handle domain name updates
+  const handleDomainNameAdded = (domainName: DomainName) => {
+    if (client) {
+      setClient({
+        ...client,
+        domainNames: [...(client.domainNames || []), domainName],
+      });
+    }
+  };
+
+  const handleDomainNameUpdated = (updatedDomain: DomainName) => {
+    if (client) {
+      setClient({
+        ...client,
+        domainNames: client.domainNames ? client.domainNames.map((domain) =>
+          domain.id === updatedDomain.id ? updatedDomain : domain
+        ) : [updatedDomain],
+      });
+    }
+  };
+
+  const handleDomainNameDeleted = (domainNameId: string) => {
+    if (client) {
+      setClient({
+        ...client,
+        domainNames: client.domainNames ? client.domainNames.filter((domain) => domain.id !== domainNameId) : [],
+      });
+    }
+  };
 
   // Format date for display
   const formatDate = (date: Date) => {
@@ -265,6 +297,22 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
               <dd className="mt-1 text-sm text-gray-900">{formatDate(new Date(client.updatedAt))}</dd>
             </div>
           </dl>
+        </div>
+      </div>
+
+      <div className="bg-white shadow-sm rounded-lg overflow-hidden mt-8">
+        <div className="px-4 py-5 sm:px-6 bg-gray-50">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">Domain Names</h3>
+          <p className="mt-1 max-w-2xl text-sm text-gray-500">Manage domain names associated with this client.</p>
+        </div>
+        <div className="border-t border-gray-200 px-4 py-5 sm:p-6">
+          <DomainNameList
+            clientId={clientId}
+            domainNames={client?.domainNames || []}
+            onDomainNameAdded={handleDomainNameAdded}
+            onDomainNameUpdated={handleDomainNameUpdated}
+            onDomainNameDeleted={handleDomainNameDeleted}
+          />
         </div>
       </div>
     </div>

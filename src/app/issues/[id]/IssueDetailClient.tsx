@@ -3,31 +3,21 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Comments from "@/components/comments/Comments";
+import { Issue, IssuePriority, IssueStatus } from "@prisma/client";
+import { toast } from "react-toastify";
 
-// Types
-type IssueStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
-type IssuePriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-
-type Issue = {
-  id: string;
-  title: string;
-  description: string | null;
-  status: IssueStatus;
-  priority: IssuePriority;
-  assignedToId: string | null;
-  reportedById: string;
-  createdAt: string;
-  updatedAt: string;
-  assignedTo: {
-    id: string;
-    name: string | null;
-    email: string;
-  } | null;
+// Extended Issue type with relations
+type ExtendedIssue = Issue & {
   reportedBy: {
     id: string;
     name: string | null;
     email: string;
   };
+  assignedTo: {
+    id: string;
+    name: string | null;
+    email: string;
+  } | null;
 };
 
 interface IssueDetailClientProps {
@@ -35,9 +25,11 @@ interface IssueDetailClientProps {
 }
 
 export default function IssueDetailClient({ id }: IssueDetailClientProps) {
-  const [issue, setIssue] = useState<Issue | null>(null);
+  const [issue, setIssue] = useState<ExtendedIssue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
   
   // Fetch issue details
   useEffect(() => {
@@ -61,18 +53,59 @@ export default function IssueDetailClient({ id }: IssueDetailClientProps) {
     
     fetchIssue();
   }, [id]);
+
+  // Handle status change
+  const handleStatusChange = async (newStatus: IssueStatus) => {
+    if (!issue) return;
+    
+    setIsUpdatingStatus(true);
+    setStatusError(null);
+    
+    try {
+      const response = await fetch(`/api/issues/${id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update status");
+      }
+      
+      // Update local state with new issue data
+      setIssue(data.data);
+    } catch (err) {
+      toast.error("Failed to update status");
+      setStatusError(err instanceof Error ? err.message : "Failed to update status");
+    } finally {
+      toast.success("Status updated successfully");
+      setIsUpdatingStatus(false);
+    }
+  };
   
   // Status badge color
   const getStatusColor = (status: IssueStatus) => {
     switch (status) {
-      case "OPEN":
+      case "NEW":
         return "bg-blue-100 text-blue-800";
+      case "ASSIGNED":
+        return "bg-purple-100 text-purple-800";
       case "IN_PROGRESS":
         return "bg-yellow-100 text-yellow-800";
-      case "RESOLVED":
+      case "PENDING":
+        return "bg-orange-100 text-orange-800";
+      case "NEEDS_REVIEW":
+        return "bg-indigo-100 text-indigo-800";
+      case "FIXED":
         return "bg-green-100 text-green-800";
       case "CLOSED":
         return "bg-gray-100 text-gray-800";
+      case "WONT_FIX":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -120,15 +153,39 @@ export default function IssueDetailClient({ id }: IssueDetailClientProps) {
           <div className="bg-white rounded-sm shadow-sm p-6 mb-6">
             <div className="flex justify-between items-start mb-6">
               <h1 className="text-2xl font-bold">{issue.title}</h1>
-              <div className="flex space-x-2">
-                <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(issue.status)}`}>
-                  {issue.status.replace("_", " ")}
-                </span>
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <select
+                    value={issue.status}
+                    onChange={(e) => handleStatusChange(e.target.value as IssueStatus)}
+                    disabled={isUpdatingStatus}
+                    className={`appearance-none px-3 py-1.5 text-sm rounded-full border ${
+                      isUpdatingStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                    } ${getStatusColor(issue.status)}`}
+                  >
+                    {Object.values(IssueStatus).map((status) => (
+                      <option key={status} value={status} className="bg-white">
+                        {status.replace("_", " ")}
+                      </option>
+                    ))}
+                  </select>
+                  {isUpdatingStatus && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-r-transparent"></div>
+                    </div>
+                  )}
+                </div>
                 <span className={`px-2 py-1 text-xs rounded-full ${getPriorityColor(issue.priority)}`}>
                   {issue.priority}
                 </span>
               </div>
             </div>
+            
+            {statusError && (
+              <div className="mb-4 bg-red-100 text-red-700 p-3 rounded-sm">
+                <p>{statusError}</p>
+              </div>
+            )}
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
@@ -162,15 +219,6 @@ export default function IssueDetailClient({ id }: IssueDetailClientProps) {
                 </p>
               </div>
             </div>
-            
-            {/* <div className="flex justify-end">
-              <Link
-                href={`/issues/${issue.id}/edit`}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-sm"
-              >
-                Edit Issue
-              </Link>
-            </div> */}
           </div>
           
           {/* Comments Section */}
