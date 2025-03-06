@@ -11,6 +11,8 @@ export async function GET(request: NextRequest) {
   // Authentication is handled by middleware
   const session = await auth();
   
+  console.log('Session in notifications API:', session);
+  
   if (!session || !session.user || !session.user.id) {
     return ApiErrors.unauthorized();
   }
@@ -25,16 +27,28 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
     
     // Build filter conditions
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
     const where: Prisma.NotificationWhereInput = {
       userId: session.user.id,
+      OR: [
+        { read: false },
+        {
+          read: true,
+          readAt: {
+            lt: oneDayAgo
+          }
+        }
+      ]
     };
     
-    if (unreadOnly) {
-      where.read = false;
-    }
+    console.log('Notification query where clause:', where);
     
     // Get total count for pagination
     const total = await prisma.notification.count({ where });
+    
+    console.log('Total notifications found:', total);
     
     // Get paginated notifications
     const notifications = await prisma.notification.findMany({
@@ -53,6 +67,8 @@ export async function GET(request: NextRequest) {
       skip,
       take: limit,
     });
+    
+    console.log('Found notifications:', notifications);
     
     // Add pagination metadata to the response
     const notificationsWithMeta = {

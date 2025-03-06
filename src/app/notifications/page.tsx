@@ -86,6 +86,21 @@ export default function NotificationsPage() {
     fetchNotifications(newPage, filter === 'unread');
   };
 
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch('/api/notifications/mark-all-read', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        // Refresh notifications after marking all as read
+        fetchNotifications(pagination.page, filter === 'unread');
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+
   if (status === 'loading') {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -135,6 +150,14 @@ export default function NotificationsPage() {
           >
             Unread
           </button>
+          {notifications.some(n => !n.read) && (
+            <button
+              className="px-4 py-2 text-sm font-medium rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
+              onClick={markAllAsRead}
+            >
+              Mark All as Read
+            </button>
+          )}
         </div>
       </div>
 

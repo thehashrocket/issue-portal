@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
+import AlertManager from '@/components/AlertManager';
 import Providers from '@/components/Providers';
 import { ToastContainer } from 'react-toastify';
 
@@ -20,20 +21,21 @@ export const metadata: Metadata = {
   description: 'A portal for managing issues',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body>
         <Providers>
-          <Navbar />
-          <main className="container mx-auto px-4 py-8">
-            {children}
-          </main>
-          <ToastContainer />
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <AlertManager />
+            <main className="flex-1">{children}</main>
+            <ToastContainer />
+          </div>
         </Providers>
       </body>
     </html>

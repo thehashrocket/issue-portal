@@ -1,11 +1,5 @@
 import prisma from "@/lib/prisma";
-
-// Define the NotificationType enum to match the Prisma schema
-enum NotificationType {
-  ISSUE_ASSIGNED = "ISSUE_ASSIGNED",
-  COMMENT_ADDED = "COMMENT_ADDED",
-  STATUS_CHANGED = "STATUS_CHANGED"
-}
+import { NotificationType } from "@prisma/client";
 
 /**
  * Service for handling notifications
@@ -77,13 +71,42 @@ export const NotificationService = {
   },
 
   /**
+   * Create a notification for an issue that is due soon
+   */
+  notifyIssueDueSoon: async (
+    issueId: string,
+    issueTitle: string,
+    dueDate: Date,
+    userToNotifyId: string
+  ) => {
+    const daysUntilDue = Math.ceil((dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    return NotificationService.createNotification(
+      NotificationType.ISSUE_DUE_SOON,
+      `Issue due in ${daysUntilDue} days: ${issueTitle}`,
+      userToNotifyId,
+      issueId
+    );
+  },
+
+  /**
    * Get notifications for a user
    */
   getUserNotifications: async (userId: string, includeRead: boolean = false) => {
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
     return prisma.notification.findMany({
       where: {
         userId,
-        ...(includeRead ? {} : { read: false }),
+        OR: [
+          { read: false },
+          {
+            read: true,
+            readAt: {
+              lt: oneDayAgo
+            }
+          }
+        ]
       },
       orderBy: {
         createdAt: "desc",
@@ -103,6 +126,7 @@ export const NotificationService = {
    * Mark a notification as read
    */
   markAsRead: async (id: string, userId: string) => {
+    const now = new Date();
     return prisma.notification.updateMany({
       where: {
         id,
@@ -110,6 +134,24 @@ export const NotificationService = {
       },
       data: {
         read: true,
+        readAt: now,
+      },
+    });
+  },
+
+  /**
+   * Mark all notifications as read for a user with a specific timestamp
+   */
+  markAllAsRead: async (userId: string) => {
+    const now = new Date();
+    return prisma.notification.updateMany({
+      where: {
+        userId,
+        read: false,
+      },
+      data: {
+        read: true,
+        readAt: now,
       },
     });
   },

@@ -17,7 +17,8 @@ import {
   ColumnAutoSizeModule,
   TextFilterModule,
   NumberFilterModule,
-  DateFilterModule
+  DateFilterModule,
+  RowClickedEvent
 } from 'ag-grid-community';
 
 // Import AG Grid styles
@@ -214,7 +215,10 @@ export default function IssueList() {
     const issueId = params.data.id;
     
     return (
-      <div className="flex items-center justify-end space-x-4 h-full">
+      <div 
+        className="flex items-center justify-end space-x-4 h-full"
+        data-action-cell="true"
+      >
         <Link 
           href={`/issues/${issueId}`} 
           className="text-blue-600 hover:text-blue-900"
@@ -305,6 +309,8 @@ export default function IssueList() {
     },
     { 
       headerName: 'Actions', 
+      field: 'actions',
+      colId: 'actions',
       cellRenderer: ActionsRenderer,
       width: 120,
       sortable: false,
@@ -403,7 +409,13 @@ export default function IssueList() {
               rowSelection="single"
               animateRows={true}
               enableCellTextSelection={true}
-              onRowClicked={(event) => router.push(`/issues/${event.data.id}`)}
+              onRowClicked={(event: RowClickedEvent) => {
+                // Check if the click target is within the actions cell
+                const actionCell = (event.event?.target as HTMLElement)?.closest('[data-action-cell]');
+                if (!actionCell) {
+                  router.push(`/issues/${event.data.id}`);
+                }
+              }}
               rowModelType="clientSide"
               theme="legacy"
               overlayLoadingTemplate={

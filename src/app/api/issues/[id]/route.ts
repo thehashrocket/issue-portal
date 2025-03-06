@@ -2,9 +2,10 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { Prisma } from "@prisma/client";
-import { issueUpdateSchema } from "@/lib/validation";
+import { issueUpdateSchema, issueAssignmentSchema } from "@/lib/validation";
 import { checkAuthorization, isDeveloper } from "@/lib/auth-utils";
 import { isNotPastDate } from "@/lib/date-utils";
+import { NotificationService } from "@/lib/notification-service";
 
 // GET /api/issues/[id] - Get a specific issue
 export async function GET(
@@ -215,5 +216,107 @@ export async function DELETE(
     }
     
     return ApiErrors.serverError("Failed to delete issue");
+  }
+}
+
+// PATCH /api/issues/[id] - Update issue assignment and due date
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  // Authentication is handled by middleware
+  const session = await auth();
+  
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    
+    // Validate request body
+    const validationResult = issueAssignmentSchema.safeParse(body);
+    
+    if (!validationResult.success) {
+      return ApiErrors.validationFailed(validationResult.error.format());
+    }
+    
+    const data = validationResult.data;
+    
+    // First check if the issue exists
+    const existingIssue = await prisma.issue.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        reportedById: true,
+        assignedToId: true,
+      },
+    });
+    
+    if (!existingIssue) {
+      return ApiErrors.notFound("Issue");
+    }
+    
+    // Check authorization for updating this issue
+    const authError = checkAuthorization(session, "issue", "update", {
+      reportedById: existingIssue.reportedById,
+      assignedToId: existingIssue.assignedToId
+    });
+    
+    if (authError) return authError;
+    
+    // Handle due date restrictions
+    if (data.dueDate) {
+      // Only admins and account managers can update due dates
+      if (isDeveloper(session)) {
+        return ApiErrors.forbidden("Developers cannot modify due dates");
+      }
+      
+      // Parse the date string and validate it's not in the past
+      const dueDate = new Date(data.dueDate);
+      if (!isNotPastDate(dueDate)) {
+        return ApiErrors.badRequest("Due date cannot be in the past");
+      }
+      
+      // Update the data object with the parsed date
+      data.dueDate = dueDate;
+    }
+    
+    // Update the issue
+    const updatedIssue = await prisma.issue.update({
+      where: { id },
+      data: {
+        assignedToId: data.assignedToId,
+        dueDate: data.dueDate,
+      },
+      include: {
+        assignedTo: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        reportedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+    
+    // Send notification if issue is assigned to someone new
+    if (data.assignedToId && data.assignedToId !== existingIssue.assignedToId) {
+      await NotificationService.notifyIssueAssigned(
+        id,
+        data.assignedToId,
+        existingIssue.title
+      );
+    }
+    
+    return createSuccessResponse(updatedIssue, 200, "Issue updated successfully");
+  } catch (error) {
+    console.error("Error updating issue:", error);
+    return ApiErrors.serverError("Failed to update issue");
   }
 } 

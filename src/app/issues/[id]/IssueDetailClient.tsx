@@ -209,6 +209,10 @@ export default function IssueDetailClient({ id }: IssueDetailClientProps) {
                     <span className="text-gray-500">Last updated:</span>{" "}
                     <span>{new Date(issue.updatedAt).toLocaleString()}</span>
                   </div>
+                  <div>
+                    <span className="text-gray-500">Due date:</span>{" "}
+                    <span>{issue.dueDate ? new Date(issue.dueDate).toLocaleString() : "No due date"}</span>
+                  </div>
                 </div>
               </div>
               

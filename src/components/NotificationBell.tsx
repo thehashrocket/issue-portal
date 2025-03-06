@@ -7,7 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 
 type Notification = {
   id: string;
-  type: 'ISSUE_ASSIGNED' | 'COMMENT_ADDED' | 'STATUS_CHANGED';
+  type: 'ISSUE_ASSIGNED' | 'COMMENT_ADDED' | 'STATUS_CHANGED' | 'ISSUE_DUE_SOON';
   message: string;
   read: boolean;
   userId: string;
@@ -49,8 +49,18 @@ export default function NotificationBell() {
       const response = await fetch('/api/notifications?unreadOnly=true');
       const data = await response.json();
       
-      if (data.success) {
+      console.log('Notifications API Response:', {
+        status: response.status,
+        ok: response.ok,
+        data: data
+      });
+      
+      // The API returns { data: { notifications: [...] } }
+      if (response.ok && data.data?.notifications) {
+        console.log('Setting notifications:', data.data.notifications);
         setNotifications(data.data.notifications);
+      } else {
+        console.error('Failed to fetch notifications:', data);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -97,41 +107,45 @@ export default function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-50">
-          <div className="py-1 max-h-96 overflow-y-auto">
-            <div className="px-4 py-2 text-sm font-medium text-gray-700 border-b">
+        <div className="absolute right-0 mt-2 w-80 rounded-md bg-white shadow-xl ring-1 ring-black ring-opacity-5 z-[100] overflow-hidden">
+          <div className="divide-y divide-gray-100">
+            <div className="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">
               Notifications
             </div>
             
-            {isLoading ? (
-              <div className="px-4 py-3 text-sm text-gray-500">Loading notifications...</div>
-            ) : notifications.length === 0 ? (
-              <div className="px-4 py-3 text-sm text-gray-500">No new notifications</div>
-            ) : (
-              notifications.map((notification) => (
-                <Link
-                  key={notification.id}
-                  href={notification.issueId ? `/issues/${notification.issueId}` : '#'}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => handleNotificationClick(notification)}
-                >
-                  <div className="font-medium">{notification.message}</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
-                  </div>
-                </Link>
-              ))
-            )}
-          </div>
-          
-          <div className="border-t border-gray-100">
-            <Link
-              href="/notifications"
-              className="block px-4 py-2 text-sm text-center text-blue-600 hover:bg-gray-50"
-              onClick={() => setIsOpen(false)}
-            >
-              View all notifications
-            </Link>
+            <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
+              {isLoading ? (
+                <div className="px-4 py-3 text-sm text-gray-500">Loading notifications...</div>
+              ) : notifications.length === 0 ? (
+                <div className="px-4 py-3 text-sm text-gray-500">No new notifications</div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {notifications.map((notification) => (
+                    <Link
+                      key={notification.id}
+                      href={notification.issueId ? `/issues/${notification.issueId}` : '#'}
+                      className="block px-4 py-3 hover:bg-gray-50 transition-colors"
+                      onClick={() => handleNotificationClick(notification)}
+                    >
+                      <div className="text-sm text-gray-900">{notification.message}</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="bg-gray-50">
+              <Link
+                href="/notifications"
+                className="block px-4 py-3 text-sm text-center text-blue-600 hover:bg-gray-100 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                View all notifications
+              </Link>
+            </div>
           </div>
         </div>
       )}

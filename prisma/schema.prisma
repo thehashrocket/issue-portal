@@ -164,6 +164,7 @@ model Notification {
   type      NotificationType
   message   String
   read      Boolean          @default(false)
+  readAt    DateTime?
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   issueId   String?
@@ -209,6 +210,7 @@ enum NotificationType {
   ISSUE_ASSIGNED
   COMMENT_ADDED
   STATUS_CHANGED
+  ISSUE_DUE_SOON
 }
 
 enum Role {

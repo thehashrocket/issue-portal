@@ -34,6 +34,15 @@ export const issueUpdateSchema = z.object({
   }, {} as Record<string, z.ZodTypeAny>),
 });
 
+// Schema for updating issue assignment and due date
+export const issueAssignmentSchema = z.object({
+  assignedToId: z.string().uuid().optional().nullable(),
+  dueDate: z.string()
+    .transform((str) => str ? new Date(str) : null)
+    .optional()
+    .nullable(),
+});
+
 // Types derived from the issue schemas
 export type IssueCreateInput = z.infer<typeof issueCreateSchema>;
 export type IssueUpdateInput = z.infer<typeof issueUpdateSchema>;

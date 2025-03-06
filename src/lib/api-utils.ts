@@ -10,9 +10,31 @@ export type ApiErrorResponse = {
 };
 
 export type ApiSuccessResponse<T> = {
+  success: boolean;
   data: T;
   message?: string;
 };
+
+/**
+ * Creates a standardized success response
+ * @param data Response data
+ * @param status HTTP status code (defaults to 200)
+ * @param message Optional success message
+ * @returns NextResponse with the data wrapped in a standard format
+ */
+export function createSuccessResponse<T>(
+  data: T,
+  status: number = 200,
+  message: string = 'Success'
+): NextResponse<ApiSuccessResponse<T>> {
+  const response: ApiSuccessResponse<T> = {
+    success: true,
+    data,
+    message
+  };
+
+  return NextResponse.json(response, { status });
+}
 
 /**
  * Creates a standardized error response
@@ -44,29 +66,6 @@ export function createErrorResponse(
 }
 
 /**
- * Creates a standardized success response
- * @param data Response data
- * @param status HTTP status code (defaults to 200)
- * @param message Optional success message
- * @returns NextResponse with the data wrapped in a standard format
- */
-export function createSuccessResponse<T>(
-  data: T,
-  status: number = 200,
-  message?: string
-): NextResponse<ApiSuccessResponse<T>> {
-  const response: ApiSuccessResponse<T> = {
-    data,
-  };
-
-  if (message) {
-    response.message = message;
-  }
-
-  return NextResponse.json(response, { status });
-}
-
-/**
  * Common error responses
  */
 export const ApiErrors = {
@@ -74,7 +73,10 @@ export const ApiErrors = {
    * 401 Unauthorized - Authentication required
    */
   unauthorized: (message: string = "Unauthorized: Authentication required", code?: string) => 
-    createErrorResponse(message, 401, undefined, code),
+    NextResponse.json({
+      success: false,
+      message: message || 'Unauthorized'
+    }, { status: 401 }),
   
   /**
    * 403 Forbidden - Insufficient permissions
@@ -85,8 +87,11 @@ export const ApiErrors = {
   /**
    * 404 Not Found - Resource not found
    */
-  notFound: (resource: string = "Resource", code?: string) => 
-    createErrorResponse(`${resource} not found`, 404, undefined, code),
+  notFound: (message: string = "Not found", code?: string) => 
+    NextResponse.json({
+      success: false,
+      message
+    }, { status: 404 }),
   
   /**
    * 400 Bad Request - Validation failed
@@ -98,13 +103,19 @@ export const ApiErrors = {
    * 400 Bad Request - Generic bad request
    */
   badRequest: (message: string = "Bad request", details?: unknown, code?: string) => 
-    createErrorResponse(message, 400, details, code),
+    NextResponse.json({
+      success: false,
+      message
+    }, { status: 400 }),
   
   /**
    * 500 Internal Server Error - Unexpected error
    */
-  serverError: (message: string = "An unexpected error occurred", code?: string) => 
-    createErrorResponse(message, 500, undefined, code),
+  serverError: (message: string = "Internal server error", code?: string) => 
+    NextResponse.json({
+      success: false,
+      message
+    }, { status: 500 }),
   
   /**
    * 409 Conflict - Resource conflict
