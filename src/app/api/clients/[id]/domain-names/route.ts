@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -31,7 +31,7 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -41,14 +41,13 @@ export async function POST(
 
     const { id } = await params;
     const body = await request.json();
-    const { name, hostingProvider, domainExpiration, domainName, domainStatus } = body;
+    const { name, hostingProvider, domainExpiration, domainStatus } = body;
 
     const newDomainName = await prisma.domainName.create({
       data: {
         name,
         hostingProvider,
         domainExpiration,
-        domainName,
         domainStatus,
         clientId: id,
       },
@@ -63,7 +62,7 @@ export async function POST(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -73,7 +72,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { id: domainId, name, hostingProvider, domainExpiration, domainName, domainStatus } = body;
+    const { id: domainId, name, hostingProvider, domainExpiration, domainStatus } = body;
 
     const updatedDomainName = await prisma.domainName.update({
       where: {
@@ -84,7 +83,6 @@ export async function PUT(
         name,
         hostingProvider,
         domainExpiration,
-        domainName,
         domainStatus,
       },
     });
