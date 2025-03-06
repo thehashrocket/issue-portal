@@ -8,16 +8,7 @@ import { NotificationService } from "@/lib/notification-service";
 
 // Define the schema for status update
 const statusUpdateSchema = z.object({
-  status: z.enum([
-    "NEW",
-    "ASSIGNED",
-    "IN_PROGRESS",
-    "PENDING",
-    "NEEDS_REVIEW",
-    "FIXED",
-    "CLOSED",
-    "WONT_FIX",
-  ]),
+  status: z.enum(["NEW", "ASSIGNED", "IN_PROGRESS", "PENDING", "NEEDS_REVIEW", "FIXED", "CLOSED", "WONT_FIX"] as const),
 });
 
 // PATCH /api/issues/[id]/status - Update issue status

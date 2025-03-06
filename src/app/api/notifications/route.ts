@@ -33,12 +33,7 @@ export async function GET(request: NextRequest) {
       userId: session.user.id,
       OR: [
         { read: false },
-        {
-          read: true,
-          readAt: {
-            lt: oneDayAgo
-          }
-        }
+        { read: true }
       ]
     };
     
