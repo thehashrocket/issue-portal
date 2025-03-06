@@ -3,7 +3,6 @@ import prisma from "@/lib/prisma";
 import { ApiErrors, createSuccessResponse } from "@/lib/api-utils";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
-import { isValidStatusTransition } from "@/lib/issue-status-utils";
 import { checkAuthorization } from "@/lib/auth-utils";
 import { NotificationService } from "@/lib/notification-service";
 
@@ -64,13 +63,6 @@ export async function PATCH(
     });
     
     if (authError) return authError;
-    
-    // // Validate status transition
-    // if (!isValidStatusTransition(existingIssue.status, newStatus)) {
-    //   return ApiErrors.badRequest(
-    //     `Invalid status transition from ${existingIssue.status} to ${newStatus}`
-    //   );
-    // }
     
     // Use Prisma's update with proper error handling to prevent race conditions
     try {
