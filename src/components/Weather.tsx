@@ -78,10 +78,6 @@ export default function Weather({ city }: WeatherProps) {
             lat: position.coords.latitude,
             lon: position.coords.longitude
           });
-        },
-        (error) => {
-          setError('Unable to retrieve your location');
-          setLoading(false);
         }
       );
     };

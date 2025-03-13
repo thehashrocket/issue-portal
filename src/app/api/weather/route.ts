@@ -4,7 +4,7 @@
 // It returns the weather data in JSON format
 // It is a serverless function that is called by the Weather component
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { WeatherData } from '@/types/weather';
 import { ApiErrors, createSuccessResponse } from '@/lib/api-utils';
 
