@@ -58,7 +58,7 @@ export default function Navbar() {
               <span className="text-sm text-gray-500">Loading...</span>
             ) : isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <Weather city="Manteca, CA" />
+                <Weather />
                 <NotificationBell />
                 <span className="text-sm text-gray-700">
                   {session?.user?.name || session?.user?.email}

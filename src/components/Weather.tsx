@@ -3,18 +3,16 @@
 // It displays the current weather, rendering an icon from lucide-react
 // It also displays the temperature and a general weather description
 // The component is styled with Tailwind CSS and uses the OpenWeatherMap API
-// It defaults to showing weather for Manteca, CA.
 // It needs to be small since it will display in the navbar next the notification bell.
 
 import { useEffect, useState } from 'react';
 import { WeatherData } from '@/types/weather';
 import { CloudFog, CloudIcon, CloudLightning, CloudMoon, CloudMoonRain, CloudSun, CloudSunRain, Haze, MoonIcon, Snowflake, SunIcon, SunSnow } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-interface WeatherProps {
-  city: string;
-}
 
-const defaultCity = 'Manteca, CA';
+interface WeatherProps {
+  city?: string;
+}
 
 export const WeatherIcon = ({ icon }: { icon: string }) => {
     // switch on the icon and return the appropriate icon using lucide-react
@@ -60,19 +58,55 @@ export const WeatherIcon = ({ icon }: { icon: string }) => {
     }   
 }
 
-export default function Weather({ city = defaultCity }: WeatherProps) {
+export default function Weather({ city }: WeatherProps) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+
+  useEffect(() => {
+    const getLocation = () => {
+      if (!navigator.geolocation) {
+        setError('Geolocation is not supported by your browser');
+        setLoading(false);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          });
+        },
+        (error) => {
+          setError('Unable to retrieve your location');
+          setLoading(false);
+        }
+      );
+    };
+
+    getLocation();
+  }, []);
 
   useEffect(() => {
     const fetchWeather = async () => {
+      if (!location && !city) {
+        return;
+      }
+
       try {
-        const response = await fetch(`/api/weather?city=${city}`);
+        const url = location 
+          ? `/api/weather?lat=${location.lat}&lon=${location.lon}`
+          : `/api/weather?city=${city}`;
+        
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error('Failed to fetch weather data');
         }   
-        const data: WeatherData = await response.json();
+        const responseData = await response.json();
+        // Extract the weather data from the wrapped response
+        const data: WeatherData = responseData.data;
         setWeather(data);
         setLoading(false);
       } catch (err) {
@@ -80,15 +114,16 @@ export default function Weather({ city = defaultCity }: WeatherProps) {
         setLoading(false);
       }
     };
+
     fetchWeather();
-  }, [city]);
+  }, [location, city]);
 
   if (loading) {
-    return <div>Loading weather data...</div>;
+    return <div className="text-sm text-gray-500">Loading weather...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-sm text-red-500">Weather unavailable</div>;
   }
 
   return (
@@ -96,13 +131,13 @@ export default function Weather({ city = defaultCity }: WeatherProps) {
       <div className="flex items-center">
         <div className="flex-shrink-0">
           {weather?.icon && (
-            // Add a tooltip to the icon
             <Tooltip>
               <TooltipTrigger>
                 <WeatherIcon icon={weather.icon} />
               </TooltipTrigger>
               <TooltipContent>
-                The weather is always perfect in California!
+                {weather.city}: {weather.description} ({Math.round(weather.temperature)}°F)<br/>
+                But the weather is always perfect in California!
               </TooltipContent>
             </Tooltip>
           )}

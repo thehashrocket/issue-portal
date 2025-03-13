@@ -62,8 +62,6 @@ export async function GET(request: NextRequest) {
       take: limit,
     });
     
-    console.log('Found notifications:', notifications);
-    
     // Add pagination metadata to the response
     const notificationsWithMeta = {
       notifications,
