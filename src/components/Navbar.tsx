@@ -21,6 +21,9 @@ export default function Navbar() {
             {/* Navigation links - only show when authenticated */}
             {isAuthenticated && (
               <div className="flex space-x-4">
+                <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">
+                  Dashboard
+                </Link>
                 <Link href="/issues" className="text-gray-600 hover:text-gray-900">
                   Issues
                 </Link>
