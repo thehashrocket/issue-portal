@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import NotificationBell from './NotificationBell';
 import { useRoleCheck } from '@/lib/hooks/useRoleCheck';
+import Weather from './Weather';
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -57,6 +58,7 @@ export default function Navbar() {
               <span className="text-sm text-gray-500">Loading...</span>
             ) : isAuthenticated ? (
               <div className="flex items-center space-x-4">
+                <Weather city="Manteca, CA" />
                 <NotificationBell />
                 <span className="text-sm text-gray-700">
                   {session?.user?.name || session?.user?.email}

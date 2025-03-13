@@ -1,6 +1,7 @@
 ---
 description: Best practices for modern React and Next.js development with TypeScript, Tailwind CSS, and accessibility
 globs: **/*.{ts,tsx}, **/components/**/*, **/hooks/**/*, **/lib/**/*
+alwaysApply: false
 ---
 
 # Modern React Next.js
@@ -325,8 +326,8 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
 - Maintain consistent structure
 
 ## Resources
-- [React Documentation](https://react.dev)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs)
-- [Tailwind CSS](https://tailwindcss.com/docs)
-- [WCAG Guidelines](https://www.w3.org/WAI/standards-guidelines/wcag/)
+- [React Documentation](mdc:https:/react.dev)
+- [Next.js Documentation](mdc:https:/nextjs.org/docs)
+- [TypeScript Documentation](mdc:https:/www.typescriptlang.org/docs)
+- [Tailwind CSS](mdc:https:/tailwindcss.com/docs)
+- [WCAG Guidelines](mdc:https:/www.w3.org/WAI/standards-guidelines/wcag)

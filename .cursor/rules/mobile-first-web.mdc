@@ -1,6 +1,7 @@
 ---
 description: Best practices for mobile-first web development using Tailwind, React, and Firebase
 globs: **/*.{js,jsx,ts,tsx}, **/tailwind.config.{js,ts}, **/firebase.config.{js,ts}
+alwaysApply: false
 ---
 
 # Mobile First Web Development
@@ -299,7 +300,7 @@ export function useMedications(schedule: string) {
 - Implement proper keyboard handling
 
 ## Resources
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [React Documentation](https://reactjs.org/docs)
-- [Firebase Documentation](https://firebase.google.com/docs)
-- [WCAG Guidelines](https://www.w3.org/WAI/standards-guidelines/wcag/)
+- [Tailwind CSS Documentation](mdc:https:/tailwindcss.com/docs)
+- [React Documentation](mdc:https:/reactjs.org/docs)
+- [Firebase Documentation](mdc:https:/firebase.google.com/docs)
+- [WCAG Guidelines](mdc:https:/www.w3.org/WAI/standards-guidelines/wcag)

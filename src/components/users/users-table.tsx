@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, RowClickedEvent } from 'ag-grid-community';
+import { ColDef, GridReadyEvent, RowClickedEvent } from 'ag-grid-community';
 import { User } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 
@@ -42,6 +42,12 @@ interface UsersTableProps {
 
 export function UsersTable({ users, isLoading, error }: UsersTableProps) {
   const router = useRouter();
+
+  // Grid ready handler
+  const onGridReady = useCallback((params: GridReadyEvent) => {
+    params.api.sizeColumnsToFit();
+  }, []);
+
   const [columnDefs] = useState<ColDef[]>([
     { 
       field: 'name', 
@@ -107,6 +113,8 @@ export function UsersTable({ users, isLoading, error }: UsersTableProps) {
     );
   }
 
+
+
   return (
     <div 
       className="ag-theme-alpine w-full h-[600px]"
@@ -125,6 +133,7 @@ export function UsersTable({ users, isLoading, error }: UsersTableProps) {
         enableCellTextSelection={true}
         ensureDomOrder={true}
         onRowClicked={onRowClicked}
+        onGridReady={onGridReady}
         rowClass="cursor-pointer hover:bg-gray-50"
       />
     </div>
