@@ -27,11 +27,13 @@ export function DomainNameList({
   const [editingDomain, setEditingDomain] = useState<DomainName | null>(null);
   const [formData, setFormData] = useState<{
     name: string;
+    domainRegistrar: string;
     hostingProvider: string;
     domainExpiration: string;
     domainStatus: DomainStatus;
   }>({
     name: '',
+    domainRegistrar: '',
     hostingProvider: '',
     domainExpiration: '',
     domainStatus: DomainStatus.ACTIVE,
@@ -84,6 +86,7 @@ export function DomainNameList({
       setIsDialogOpen(false);
       setFormData({
         name: '',
+        domainRegistrar: '',
         hostingProvider: '',
         domainExpiration: '',
         domainStatus: DomainStatus.ACTIVE,
@@ -113,6 +116,7 @@ export function DomainNameList({
     setEditingDomain(domain);
     setFormData({
       name: domain.name,
+      domainRegistrar: domain.domainRegistrar || '',
       hostingProvider: domain.hostingProvider || '',
       domainExpiration: domain.domainExpiration ? format(new Date(domain.domainExpiration), 'yyyy-MM-dd') : '',
       domainStatus: domain.domainStatus || DomainStatus.ACTIVE,
@@ -144,6 +148,14 @@ export function DomainNameList({
                   value={formData.name}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
                   required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="domainRegistrar">Domain Registrar</Label>
+                <Input
+                  id="domainRegistrar"
+                  value={formData.domainRegistrar}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, domainRegistrar: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
@@ -198,6 +210,9 @@ export function DomainNameList({
           >
             <div>
               <p className="text-sm text-gray-500">Domain:{domain.name}</p>
+              {domain.domainRegistrar && (
+                <p className="text-sm text-gray-500">Registrar: {domain.domainRegistrar}</p>
+              )}
               {domain.hostingProvider && (
                 <p className="text-sm text-gray-500">Hosting: {domain.hostingProvider}</p>
               )}

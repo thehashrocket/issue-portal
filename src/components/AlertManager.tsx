@@ -89,7 +89,7 @@ export default function AlertManager() {
   }
 
   return (
-    <div className="sticky top-16 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm shadow-sm">
+    <div className="bg-white/95 backdrop-blur-sm shadow-sm">
       <div className="container mx-auto px-4 py-2 space-y-2">
         {domains.map((domain) => (
           domain.domainExpiration && (

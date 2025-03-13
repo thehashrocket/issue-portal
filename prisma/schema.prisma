@@ -89,6 +89,7 @@ model Client {
 model DomainName {
   id               String        @id @default(uuid())
   name             String
+  domainRegistrar  String?
   hostingProvider  String?
   domainExpiration DateTime?
   domainStatus     DomainStatus?

@@ -41,11 +41,12 @@ export async function POST(
 
     const { id } = await params;
     const body = await request.json();
-    const { name, hostingProvider, domainExpiration, domainStatus } = body;
+    const { name, domainRegistrar, hostingProvider, domainExpiration, domainStatus } = body;
 
     const newDomainName = await prisma.domainName.create({
       data: {
         name,
+        domainRegistrar,
         hostingProvider,
         domainExpiration,
         domainStatus,
@@ -72,7 +73,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { id: domainId, name, hostingProvider, domainExpiration, domainStatus } = body;
+    const { id: domainId, name, domainRegistrar, hostingProvider, domainExpiration, domainStatus } = body;
 
     const updatedDomainName = await prisma.domainName.update({
       where: {
@@ -81,6 +82,7 @@ export async function PUT(
       },
       data: {
         name,
+        domainRegistrar,
         hostingProvider,
         domainExpiration,
         domainStatus,

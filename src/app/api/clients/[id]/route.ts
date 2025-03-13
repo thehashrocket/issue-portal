@@ -24,6 +24,7 @@ export async function GET(
     const client = await prismaTyped.client.findUnique({
       where: { id },
       include: {
+        domainNames: true,
         manager: {
           select: {
             id: true,
@@ -115,6 +116,7 @@ export async function PUT(
         managerId: data.managerId,
       },
       include: {
+        domainNames: true,
         manager: {
           select: {
             id: true,
@@ -237,13 +239,14 @@ export async function PATCH(
       where: { id },
       data: updateData,
       include: {
+        domainNames: true,
         manager: {
           select: {
             id: true,
             name: true,
             email: true,
           },
-        },
+        }, 
       },
     });
     
