@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef, RowClickedEvent } from 'ag-grid-community';
-import { User } from '@/types/user';
+import { User } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 
 import { 

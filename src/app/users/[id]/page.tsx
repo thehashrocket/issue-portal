@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User } from '@/types/user';
+import { User } from '@prisma/client'
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ArrowLeft } from 'lucide-react';
@@ -90,6 +91,18 @@ export default function UserPage() {
           <CardTitle>User Details</CardTitle>
         </CardHeader>
         <CardContent>
+          {user.image && (
+            <div className="flex justify-center mb-4">
+              <div className="relative w-32 h-32 rounded-full overflow-hidden">
+                <Image
+                  src={user.image}
+                  alt={`${user.name || 'User'}'s profile picture`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          )}
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-medium text-gray-500">Name</h3>

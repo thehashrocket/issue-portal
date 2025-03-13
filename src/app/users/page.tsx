@@ -4,7 +4,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { UsersTable } from '@/components/users/users-table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { User } from '@/types/user';
+import { User } from '@prisma/client';
 import { RefreshCw } from 'lucide-react';
 
 export default function UsersPage() {
