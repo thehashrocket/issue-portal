@@ -294,6 +294,10 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
 - Prefer const arrow functions over function declarations
 - Keep components focused and single-responsibility
 - Implement proper TypeScript interfaces
+- Utilize shadcn (not shadcn-ui) components
+- Utilize react-hooks-forms and zod when building forms.
+- When possible, break larger components into smaller components.
+- Comment components regarding their purpose and file path.
 
 ### Accessibility
 - Use semantic HTML elements
