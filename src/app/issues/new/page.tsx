@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IssueStatus, IssuePriority, User, Client, HowDisovered, Environment } from "@prisma/client";
+import { IssueStatus, IssuePriority, User, Client } from "@prisma/client";
 import Link from "next/link";
 import {
   Accordion,

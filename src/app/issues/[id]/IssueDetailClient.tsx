@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Comments from "@/components/comments/Comments";
-import { Issue, IssuePriority, IssueStatus, Environment, HowDisovered } from "@prisma/client";
+import { Issue, IssuePriority, IssueStatus } from "@prisma/client";
 import { toast } from "react-toastify";
 import {
   Card,
