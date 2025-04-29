@@ -8,13 +8,34 @@ import { z } from "zod";
 
 // Base schema with common fields for both creation and updates
 export const issueBaseSchema = {
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional().nullable(),
-  status: z.enum(["NEW", "ASSIGNED", "IN_PROGRESS", "PENDING", "NEEDS_REVIEW", "FIXED", "CLOSED", "WONT_FIX"]),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
+  actualResult: z.string().optional().nullable(),
   assignedToId: z.string().uuid().optional().nullable(),
-  dueDate: z.date().optional().nullable(),
   clientId: z.string().uuid(),
+  description: z.string().optional().nullable(),
+  dueDate: z.date().optional().nullable(),
+  environment: z.enum(["PRODUCTION", "STAGING", "DEVELOPMENT", "TEST", "LOCAL"]),
+  expectedResult: z.string().optional().nullable(),
+  howDisovered: z.enum(["AUTOMATED_TESTING", "CLIENT_REFERRED", "MANUAL_TESTING", "MONITORING_TOOL", "OTHER", "QA_TEAM", "REFERRAL", "SELF_DISCOVERED", "SOCIAL_MEDIA", "WEB_SEARCH"]),
+  impact: z.string().optional().nullable(),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
+  relatedLogs: z.string().optional().nullable(),
+  rootCauseIdentified: z.enum(['true', 'false', 'stillInvestigating'])
+    .transform((val) => {
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      return null;
+    })
+    .optional()
+    .nullable(),
+  rootCauseDescription: z.string().optional().nullable(),
+  status: z.enum(["NEW", "ASSIGNED", "IN_PROGRESS", "PENDING", "NEEDS_REVIEW", "FIXED", "CLOSED", "WONT_FIX"]),
+  stepsToReproduce: z.string().optional().nullable(),
+  title: z.string().min(1, "Title is required"),
+  workAroundAvailable: z.enum(['true', 'false'])
+    .transform((val) => val === 'true')
+    .optional()
+    .nullable(),
+  workAroundDescription: z.string().optional().nullable(),
 };
 
 // Schema for issue creation - all fields are required except those marked optional

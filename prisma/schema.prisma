@@ -100,23 +100,34 @@ model DomainName {
 }
 
 model Issue {
-  id            String         @id @default(uuid())
-  title         String
-  description   String?
-  status        IssueStatus    @default(NEW)
-  priority      IssuePriority  @default(MEDIUM)
-  assignedTo    User?          @relation("AssignedIssues", fields: [assignedToId], references: [id])
-  assignedToId  String?
-  reportedBy    User           @relation("ReportedIssues", fields: [reportedById], references: [id])
-  reportedById  String
-  client        Client         @relation("ClientIssues", fields: [clientId], references: [id])
-  clientId      String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  dueDate       DateTime?
-  files         File[]
-  comments      Comment[]
-  notifications Notification[]
+  id                    String         @id @default(uuid())
+  actualResult          String?
+  assignedTo            User?          @relation("AssignedIssues", fields: [assignedToId], references: [id])
+  assignedToId          String?
+  client                Client         @relation("ClientIssues", fields: [clientId], references: [id])
+  clientId              String
+  comments              Comment[]
+  createdAt             DateTime       @default(now())
+  description           String?
+  dueDate               DateTime?
+  environment           Environment?   @default(LOCAL)
+  expectedResult        String?
+  files                 File[]
+  howDisovered          HowDisovered?  @default(OTHER)
+  impact                String?
+  notifications         Notification[]
+  priority              IssuePriority  @default(MEDIUM)
+  relatedLogs           String?
+  reportedBy            User           @relation("ReportedIssues", fields: [reportedById], references: [id])
+  reportedById          String
+  rootCauseDescription  String?
+  rootCauseIdentified   Boolean?       @default(false)
+  status                IssueStatus    @default(NEW)
+  stepsToReproduce      String?
+  title                 String
+  updatedAt             DateTime       @updatedAt
+  workAroundAvailable   Boolean?       @default(false)
+  workAroundDescription String?
 
   @@index([assignedToId])
   @@index([reportedById])
@@ -187,6 +198,27 @@ enum DomainStatus {
   ACTIVE
   EXPIRED
   CANCELLED
+}
+
+enum Environment {
+  PRODUCTION
+  STAGING
+  DEVELOPMENT
+  TEST
+  LOCAL
+}
+
+enum HowDisovered {
+  AUTOMATED_TESTING
+  CLIENT_REFERRED
+  MANUAL_TESTING
+  MONITORING_TOOL
+  OTHER
+  QA_TEAM
+  REFERRAL
+  SELF_DISCOVERED
+  SOCIAL_MEDIA
+  WEB_SEARCH
 }
 
 enum IssuePriority {

@@ -3,8 +3,22 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Comments from "@/components/comments/Comments";
-import { Issue, IssuePriority, IssueStatus } from "@prisma/client";
+import { Issue, IssuePriority, IssueStatus, Environment, HowDisovered } from "@prisma/client";
 import { toast } from "react-toastify";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 // Extended Issue type with relations
 type ExtendedIssue = Issue & {
@@ -141,18 +155,23 @@ export default function IssueDetailClient({ id }: IssueDetailClientProps) {
           <p className="mt-2">Loading issue...</p>
         </div>
       ) : error ? (
-        <div className="bg-red-100 text-red-700 p-4 rounded-sm">
+        <div className="bg-red-100 text-red-700 p-4 rounded-lg">
           <p>{error}</p>
         </div>
       ) : !issue ? (
-        <div className="bg-red-100 text-red-700 p-4 rounded-sm">
+        <div className="bg-red-100 text-red-700 p-4 rounded-lg">
           <p>Issue not found</p>
         </div>
       ) : (
-        <>
-          <div className="bg-white rounded-sm shadow-sm p-6 mb-6">
-            <div className="flex justify-between items-start mb-6">
-              <h1 className="text-2xl font-bold">{issue.title}</h1>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between">
+              <div>
+                <CardTitle className="text-2xl">{issue.title}</CardTitle>
+                <CardDescription>
+                  Issue #{id} • Created {new Date(issue.createdAt).toLocaleString()}
+                </CardDescription>
+              </div>
               <div className="flex items-center space-x-4">
                 <div className="relative">
                   <select
@@ -175,59 +194,165 @@ export default function IssueDetailClient({ id }: IssueDetailClientProps) {
                     </div>
                   )}
                 </div>
-                <span className={`px-2 py-1 text-xs rounded-full ${getPriorityColor(issue.priority)}`}>
+                <Badge variant="secondary" className={getPriorityColor(issue.priority)}>
                   {issue.priority}
-                </span>
+                </Badge>
               </div>
-            </div>
+            </CardHeader>
             
             {statusError && (
-              <div className="mb-4 bg-red-100 text-red-700 p-3 rounded-sm">
+              <div className="mx-6 mb-4 bg-red-100 text-red-700 p-3 rounded-lg">
                 <p>{statusError}</p>
               </div>
             )}
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <h2 className="text-lg font-semibold mb-2">Details</h2>
-                <div className="space-y-2">
-                  <div>
-                    <span className="text-gray-500">Reported by:</span>{" "}
-                    <span>{issue.reportedBy.name || issue.reportedBy.email}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Assigned to:</span>{" "}
-                    <span>
-                      {issue.assignedTo ? (issue.assignedTo.name || issue.assignedTo.email) : "Unassigned"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Created:</span>{" "}
-                    <span>{new Date(issue.createdAt).toLocaleString()}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Last updated:</span>{" "}
-                    <span>{new Date(issue.updatedAt).toLocaleString()}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Due date:</span>{" "}
-                    <span>{issue.dueDate ? new Date(issue.dueDate).toLocaleString() : "No due date"}</span>
-                  </div>
-                </div>
+
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Basic Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Basic Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div>
+                      <span className="text-muted-foreground">Reported by:</span>{" "}
+                      <span>{issue.reportedBy.name || issue.reportedBy.email}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Assigned to:</span>{" "}
+                      <span>
+                        {issue.assignedTo ? (issue.assignedTo.name || issue.assignedTo.email) : "Unassigned"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Environment:</span>{" "}
+                      <Badge variant="outline">{issue.environment || "Not specified"}</Badge>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">How Discovered:</span>{" "}
+                      <Badge variant="outline">
+                        {issue.howDisovered?.replace("_", " ") || "Not specified"}
+                      </Badge>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Due date:</span>{" "}
+                      <span>{issue.dueDate ? new Date(issue.dueDate).toLocaleString() : "No due date"}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Last updated:</span>{" "}
+                      <span>{new Date(issue.updatedAt).toLocaleString()}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Description */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Description</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm whitespace-pre-wrap">
+                      {issue.description || "No description provided."}
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
-              
-              <div>
-                <h2 className="text-lg font-semibold mb-2">Description</h2>
-                <p className="text-gray-700 whitespace-pre-wrap">
-                  {issue.description || "No description provided."}
-                </p>
-              </div>
-            </div>
-          </div>
-          
+
+              {/* Detailed Information */}
+              <Accordion type="single" collapsible className="mt-6">
+                <AccordionItem value="details">
+                  <AccordionTrigger>Technical Details</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-medium mb-2">Expected Result</h4>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                            {issue.expectedResult || "Not specified"}
+                          </p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-2">Actual Result</h4>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                            {issue.actualResult || "Not specified"}
+                          </p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-2">Steps to Reproduce</h4>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                            {issue.stepsToReproduce || "Not specified"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-medium mb-2">Impact</h4>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                            {issue.impact || "Not specified"}
+                          </p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-2">Related Logs</h4>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-muted p-2 rounded-md">
+                            {issue.relatedLogs || "No logs provided"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="root-cause">
+                  <AccordionTrigger>Root Cause Analysis</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Badge variant={issue.rootCauseIdentified ? "default" : "secondary"}>
+                          {issue.rootCauseIdentified ? "Root Cause Identified" : "Root Cause Not Identified"}
+                        </Badge>
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-2">Root Cause Description</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                          {issue.rootCauseDescription || "Not yet determined"}
+                        </p>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="workaround">
+                  <AccordionTrigger>Workaround Information</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Badge variant={issue.workAroundAvailable ? "default" : "secondary"}>
+                          {issue.workAroundAvailable ? "Workaround Available" : "No Workaround Available"}
+                        </Badge>
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-2">Workaround Description</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                          {issue.workAroundDescription || "No workaround description provided"}
+                        </p>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
+          </Card>
+
           {/* Comments Section */}
-          <Comments issueId={issue.id} />
-        </>
+          <Card>
+            <CardHeader>
+              <CardTitle>Comments</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Comments issueId={issue.id} />
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );
