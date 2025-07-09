@@ -36,15 +36,38 @@ const debugDatabaseUrl = () => {
   }
 };
 
+// Ensure we have a valid database URL
+const getDatabaseUrl = (): string => {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
+  
+  // If the URL is already in the correct format, use it
+  if (dbUrl.startsWith('postgresql://') || dbUrl.startsWith('postgres://')) {
+    return dbUrl;
+  }
+  
+  // If somehow we get a prisma:// URL, we need to convert it or handle it
+  if (dbUrl.startsWith('prisma://') || dbUrl.startsWith('prisma+postgres://')) {
+    console.error('[Prisma Debug] Detected Data Platform URL format, but we need standard PostgreSQL URL');
+    throw new Error('Invalid database URL format. Expected postgresql:// or postgres://, got: ' + dbUrl.split('://')[0]);
+  }
+  
+  return dbUrl;
+};
+
 // Initialize Prisma client with proper configuration
 const createPrismaClient = (): PrismaClientWithIssue => {
   debugDatabaseUrl();
+  
+  const databaseUrl = getDatabaseUrl();
   
   return new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     datasources: {
       db: {
-        url: process.env.DATABASE_URL,
+        url: databaseUrl,
       },
     },
   }) as PrismaClientWithIssue;

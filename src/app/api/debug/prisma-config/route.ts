@@ -1,44 +1,33 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Check if DATABASE_URL is set
-    const hasDatabaseUrl = !!process.env.DATABASE_URL;
-    const databaseUrlProtocol = process.env.DATABASE_URL?.split('://')[0];
-    
-    // Check for any Prisma-related environment variables that might cause issues
-    const prismaEnvVars = {
+    // Check all environment variables that might affect Prisma
+    const envVars = {
+      NODE_ENV: process.env.NODE_ENV,
       DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
       PRISMA_DATABASE_URL: process.env.PRISMA_DATABASE_URL ? 'SET' : 'NOT_SET',
       PRISMA_ACCELERATE_URL: process.env.PRISMA_ACCELERATE_URL ? 'SET' : 'NOT_SET',
       PRISMA_DATA_PROXY_URL: process.env.PRISMA_DATA_PROXY_URL ? 'SET' : 'NOT_SET',
       PRISMA_CLIENT_ENGINE_TYPE: process.env.PRISMA_CLIENT_ENGINE_TYPE || 'NOT_SET',
+      PRISMA_GENERATE_DATAPROXY: process.env.PRISMA_GENERATE_DATAPROXY || 'NOT_SET',
     };
-    
-    // Try to connect to the database
-    let connectionStatus = 'unknown';
-    let errorMessage = null;
-    
+
+    // Check if we can import PrismaClient directly
+    let prismaClientStatus = 'unknown';
     try {
-      await prisma.$connect();
-      connectionStatus = 'connected';
-    } catch (error) {
-      connectionStatus = 'failed';
-      errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    } finally {
-      await prisma.$disconnect();
+      await import('@prisma/client');
+      prismaClientStatus = 'imported_successfully';
+    } catch (importError) {
+      prismaClientStatus = 'import_failed';
+      console.error('PrismaClient import failed:', importError);
     }
 
     return NextResponse.json({
       success: true,
       debug: {
-        hasDatabaseUrl,
-        databaseUrlProtocol,
-        connectionStatus,
-        errorMessage,
-        nodeEnv: process.env.NODE_ENV,
-        prismaEnvVars,
+        envVars,
+        prismaClientStatus,
         timestamp: new Date().toISOString(),
       }
     });
