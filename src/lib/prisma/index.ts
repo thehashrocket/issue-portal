@@ -19,11 +19,39 @@ declare global {
 
 const globalForPrisma = global as unknown as { prisma: PrismaClientWithIssue };
 
-export const prisma =
-  globalForPrisma.prisma ||
-  (new PrismaClient({
+// Debug database URL in production (without exposing sensitive data)
+const debugDatabaseUrl = () => {
+  if (process.env.NODE_ENV === 'production') {
+    const dbUrl = process.env.DATABASE_URL;
+    if (dbUrl) {
+      // Only log the protocol and host for debugging
+      const urlParts = dbUrl.split('@');
+      if (urlParts.length > 1) {
+        const hostPart = urlParts[1];
+        console.log(`[Prisma Debug] Database URL protocol: ${dbUrl.split('://')[0]}://`);
+        console.log(`[Prisma Debug] Database host: ${hostPart.split('/')[0]}`);
+      }
+    } else {
+      console.error('[Prisma Debug] DATABASE_URL is not set');
+    }
+  }
+};
+
+// Initialize Prisma client with proper configuration
+const createPrismaClient = (): PrismaClientWithIssue => {
+  debugDatabaseUrl();
+  
+  return new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  }) as PrismaClientWithIssue);
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+  }) as PrismaClientWithIssue;
+};
+
+export const prisma = globalForPrisma.prisma || createPrismaClient();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
