@@ -13,7 +13,6 @@ type PrismaClientWithIssue = PrismaClient & {
 
 // Add issue model to the global type
 declare global {
-  // eslint-disable-next-line no-var
   var prisma: PrismaClientWithIssue | undefined;
 }
 
